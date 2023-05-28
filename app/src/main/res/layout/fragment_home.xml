@@ -1,32 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <CalendarView
+        android:id="@+id/home_calendar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
     <TextView
-        android:id="@+id/sample_fragment_text"
+        android:id="@+id/today_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp"
+        android:text="Today"
+        android:textColor="?attr/colorPrimary"
+        android:textStyle="bold" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/date_fragment_container"
+        android:name="com.spacey.myhome.DateFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment"
-        tools:visibility="gone" />
+        android:layout_height="match_parent" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <Spinner
-            android:id="@+id/item_type"
-            android:layout_width="329dp"
-            android:layout_height="32dp"
-            android:layout_marginTop="24dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</FrameLayout>
+</LinearLayout>
