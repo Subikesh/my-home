@@ -6,14 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CalendarView
 import android.widget.TextView
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import com.spacey.myhome.utils.CalendarUtils
+import androidx.fragment.app.viewModels
 
 class HomeFragment : Fragment() {
 
     private lateinit var homeCalendarView: CalendarView
     private lateinit var todayButton: TextView
+
+    private val dateViewModel: DateViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,45 +28,29 @@ class HomeFragment : Fragment() {
             todayButton = findViewById(R.id.today_button)
         }
 
+        val dateFragment = DateFragment()
+        childFragmentManager.beginTransaction()
+            .replace(R.id.date_fragment_container, dateFragment)
+            .commit()
+
         return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        refreshDateChanged()
         setListeners()
     }
 
     private fun setListeners() {
         todayButton.setOnClickListener {
-            homeCalendarView.setDate(System.currentTimeMillis(), true, true)
-            refreshDateChanged()
+            val currentMillis = System.currentTimeMillis()
+            homeCalendarView.setDate(currentMillis, true, true)
+            dateViewModel.setDate(currentMillis)
         }
 
         homeCalendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            onDateChangeListener(year, month, dayOfMonth)
+            dateViewModel.setDate(year, month, dayOfMonth)
         }
-    }
-
-    private fun refreshDateChanged(millis: Long = System.currentTimeMillis()) {
-        val year = CalendarUtils.getYearFromMillis(millis)
-        val month = CalendarUtils.getMonthFromMillis(millis)
-        val dayOfMonth = CalendarUtils.getDayOfMonthFromMillis(millis)
-
-        onDateChangeListener(year, month, dayOfMonth)
-    }
-
-    private fun onDateChangeListener(year: Int, month: Int, dayOfMonth: Int) {
-        val dateString = "$dayOfMonth/$month/$year"
-        val dateBundle = bundleOf(DateFragment.DATE_MILLIS to dateString)
-        val dateFragment = DateFragment()
-        dateFragment.arguments = dateBundle
-
-        childFragmentManager.beginTransaction()
-            .replace(R.id.date_fragment_container, dateFragment)
-            .addToBackStack(dateString)
-            .commit()
     }
 
     companion object {

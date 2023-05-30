@@ -22,13 +22,12 @@
         android:clickable="true"
         android:focusable="true"
         android:padding="8dp"
-        android:text="Today"
+        android:text="@string/today"
         android:textColor="?attr/colorPrimary"
         android:textStyle="bold" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/date_fragment_container"
-        android:name="com.spacey.myhome.DateFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
