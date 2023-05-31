@@ -1,4 +1,4 @@
-package com.spacey.myhome
+package com.spacey.myhome.date
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
+import com.spacey.myhome.R
 
 class DateFragment : Fragment() {
 

@@ -1,7 +1,6 @@
-package com.spacey.myhome
+package com.spacey.myhome.date
 
 import androidx.lifecycle.ViewModel
-import com.spacey.myhome.uistates.DateUIState
 import com.spacey.myhome.utils.CalendarUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

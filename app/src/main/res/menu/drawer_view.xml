@@ -4,14 +4,10 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/home_24"
-            android:title="Home" />
+            android:title="@string/home" />
         <item
-            android:id="@+id/nav_milk"
-            android:icon="@drawable/milk_bottle"
-            android:title="Milk" />
-        <item
-            android:id="@+id/nav_water"
-            android:icon="@drawable/water_drop"
-            android:title="Water Can" />
+            android:id="@+id/nav_todo"
+            android:icon="@drawable/todo_circle"
+            android:title="Todo List" />
     </group>
 </menu>
