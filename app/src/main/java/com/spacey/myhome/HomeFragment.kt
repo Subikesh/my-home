@@ -8,11 +8,16 @@ import android.widget.CalendarView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
     private lateinit var homeCalendarView: CalendarView
     private lateinit var todayButton: TextView
+    private lateinit var dateText: TextView
 
     private val dateViewModel: DateViewModel by viewModels()
 
@@ -20,12 +25,12 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val rootView = inflater.inflate(R.layout.fragment_home, container, false)
 
         with(rootView) {
             homeCalendarView = findViewById(R.id.home_calendar)
             todayButton = findViewById(R.id.today_button)
+            dateText = findViewById(R.id.date_text)
         }
 
         val dateFragment = DateFragment()
@@ -38,6 +43,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         setListeners()
     }
 
@@ -50,6 +56,15 @@ class HomeFragment : Fragment() {
 
         homeCalendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             dateViewModel.setDate(year, month, dayOfMonth)
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                dateViewModel.dateState.collect { selectedDate ->
+                    dateText.text =
+                        "Current date: ${selectedDate.dayOfMonth}/${selectedDate.month}/${selectedDate.year}"
+                }
+            }
         }
     }
 
