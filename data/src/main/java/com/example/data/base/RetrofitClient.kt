@@ -5,7 +5,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 internal object RetrofitClient {
-    private const val BASE_URL = "https://jsonkeeper.com/b/"
+    private const val BASE_URL = "https://api.npoint.io/"
 //    private const val BASE_URL = "http://192.168.1.7:8000/myhome/"
 
     val retrofit: Retrofit by lazy {
