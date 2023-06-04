@@ -12,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.snackbar.Snackbar
 import com.spacey.myhome.R
 import kotlinx.coroutines.launch
 
@@ -22,24 +24,41 @@ class TodoFragment : Fragment() {
 
     private val todoViewModel: TodoViewModel by viewModels()
 
+    private lateinit var todoList: RecyclerView
+    private lateinit var todoSwipeLayout: SwipeRefreshLayout
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_todo, container, false)
+        val todoListAdapter = TodoListRecyclerViewAdapter(emptyList())
 
-        // Set the adapter
-        if (view is RecyclerView) {
-            val todoListAdapter = TodoListRecyclerViewAdapter(emptyList())
-            with(view) {
-                layoutManager = LinearLayoutManager(context)
-                adapter = todoListAdapter
-            }
+        todoSwipeLayout = view.findViewById(R.id.todo_swipe_layout)
+        todoList = view.findViewById<RecyclerView>(R.id.todo_list).apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = todoListAdapter
+        }
 
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    todoViewModel.todoUIState.collect { todoList ->
-                        todoListAdapter.updateTodoList(todoList)
+        todoSwipeLayout.setOnRefreshListener {
+            todoViewModel.fetchTodos()
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                todoViewModel.todoUIState.collect { todoResult ->
+                    when (todoResult) {
+                        is TodoUIState.Loading -> {
+                            todoSwipeLayout.isRefreshing = true
+                        }
+                        is TodoUIState.Success -> {
+                            todoListAdapter.updateTodoList(todoResult.data)
+                            todoSwipeLayout.isRefreshing = false
+                        }
+                        is TodoUIState.Error -> {
+                            Snackbar.make(todoSwipeLayout, todoResult.errorMessage, Snackbar.LENGTH_LONG).show()
+                            todoSwipeLayout.isRefreshing = false
+                        }
                     }
                 }
             }
