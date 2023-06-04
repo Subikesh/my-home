@@ -5,14 +5,21 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.spacey.myhome.databinding.FragmentTodoItemBinding
-import com.spacey.myhome.todo.placeholder.PlaceholderContent.PlaceholderItem
 
 class TodoListRecyclerViewAdapter(
-    private val values: List<PlaceholderItem>
+    initialTodoList: List<TodoUIState>
 ) : RecyclerView.Adapter<TodoListRecyclerViewAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    private var todoList: List<TodoUIState> = initialTodoList
 
+    fun updateTodoList(newList: List<TodoUIState>) {
+        if (todoList != newList) {
+            todoList = newList
+            notifyDataSetChanged()
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             FragmentTodoItemBinding.inflate(
                 LayoutInflater.from(parent.context),
@@ -20,16 +27,15 @@ class TodoListRecyclerViewAdapter(
                 false
             )
         )
-
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = values[position]
-        holder.idView.text = item.id
-        holder.contentView.text = item.content
+        val item = todoList[position]
+        holder.idView.text = if (item.isDone) "Yes" else "No"
+        holder.contentView.text = item.title
     }
 
-    override fun getItemCount(): Int = values.size
+    override fun getItemCount(): Int = todoList.size
 
     class ViewHolder(binding: FragmentTodoItemBinding) : RecyclerView.ViewHolder(binding.root) {
         val idView: TextView = binding.itemNumber

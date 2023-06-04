@@ -1,20 +1,26 @@
 package com.spacey.myhome.todo
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.spacey.myhome.R
-import com.spacey.myhome.todo.placeholder.PlaceholderContent
+import kotlinx.coroutines.launch
 
 /**
  * A fragment representing a list of Items.
  */
 class TodoFragment : Fragment() {
+
+    private val todoViewModel: TodoViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,9 +30,18 @@ class TodoFragment : Fragment() {
 
         // Set the adapter
         if (view is RecyclerView) {
+            val todoListAdapter = TodoListRecyclerViewAdapter(emptyList())
             with(view) {
                 layoutManager = LinearLayoutManager(context)
-                adapter = TodoListRecyclerViewAdapter(PlaceholderContent.ITEMS)
+                adapter = todoListAdapter
+            }
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    todoViewModel.todoUIState.collect { todoList ->
+                        todoListAdapter.updateTodoList(todoList)
+                    }
+                }
             }
         }
         return view
@@ -37,5 +52,7 @@ class TodoFragment : Fragment() {
 
         val toolbar: Toolbar = requireActivity().findViewById(R.id.home_toolbar)
         toolbar.title = "Todo Checklist"
+
+        todoViewModel.fetchTodos()
     }
 }
