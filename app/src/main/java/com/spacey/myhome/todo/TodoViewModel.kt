@@ -15,14 +15,14 @@ class TodoViewModel : ViewModel() {
     private val _todoUIState = MutableStateFlow<TodoUIState>(TodoUIState.Loading)
     val todoUIState: StateFlow<TodoUIState> = _todoUIState
 
-    private val todoRepository: TodoRepository = DIServiceLocator.repository
+    private val todoRepository: TodoRepository = DIServiceLocator.todoRepository
 
     fun fetchTodos() {
         viewModelScope.launch {
             try {
                 todoRepository.fetchTodos().collect { todoResult ->
                     Log.d("Todo", "Todo list fetched: $todoResult")
-                    _todoUIState.value = todoResult.convertToUIState()
+                    _todoUIState.value = todoResult.toUIState()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -31,7 +31,7 @@ class TodoViewModel : ViewModel() {
     }
 }
 
-private fun TodoResult.convertToUIState(): TodoUIState =
+private fun TodoResult.toUIState(): TodoUIState =
     when (this) {
         is TodoResult.Loading -> TodoUIState.Loading
         is TodoResult.TodoData.Success -> TodoUIState.Success(data)
