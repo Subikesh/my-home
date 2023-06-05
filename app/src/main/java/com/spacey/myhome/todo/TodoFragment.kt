@@ -52,11 +52,12 @@ class TodoFragment : Fragment() {
                             todoSwipeLayout.isRefreshing = true
                         }
                         is TodoUIState.Success -> {
+                            Snackbar.make(todoSwipeLayout, "TodoResults fetched", Snackbar.LENGTH_SHORT).show()
                             todoListAdapter.updateTodoList(todoResult.data)
                             todoSwipeLayout.isRefreshing = false
                         }
                         is TodoUIState.Error -> {
-                            Snackbar.make(todoSwipeLayout, todoResult.errorMessage, Snackbar.LENGTH_LONG).show()
+                            Snackbar.make(todoSwipeLayout, todoResult.errorMessage, Snackbar.LENGTH_INDEFINITE).show()
                             todoSwipeLayout.isRefreshing = false
                         }
                     }
