@@ -1,5 +1,6 @@
-package com.example.data.todo
+package com.example.data.todo.remote
 
+import com.example.data.todo.TodoEntity
 import retrofit2.http.GET
 
 interface TodoRemoteDataSource {
