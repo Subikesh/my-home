@@ -14,36 +14,35 @@ class TodoRepository(
     private val todoLocalDataSource: TodoLocalDataSource,
     private val connectivityHelper: ConnectivityHelper
 ) {
-    suspend fun fetchTodos(): Flow<TodoResult> {
+    suspend fun fetchTodos(): Flow<TodoResult<List<TodoEntity>>> {
         return flow {
-            emit(TodoResult.Loading)
             try {
                 // From local db
                 val todoData = getTodosFromDB()
-                if (todoData is TodoResult.TodoData.Success) {
+                if (todoData is TodoResult.Success) {
                     emit(todoData)
                 }
-                emit(TodoResult.TodoData.Success(todoLocalDataSource.getAllTodos()))
+                emit(TodoResult.Success(todoLocalDataSource.getAllTodos()))
 
                 if (connectivityHelper.isInternetConnected()) {
                     val todoList = todoRemoteDataSource.getTodoList()
                     todoLocalDataSource.insertAll(todoList.map { it.toDBEntity() })
-                    emit(TodoResult.TodoData.Success(todoLocalDataSource.getAllTodos()))
+                    emit(TodoResult.Success(todoLocalDataSource.getAllTodos()))
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                emit(TodoResult.TodoData.Error(e))
+                emit(TodoResult.Error(e))
             }
 
         }.flowOn(Dispatchers.IO)
     }
 
-    private fun getTodosFromDB(): TodoResult =
+    private fun getTodosFromDB(): TodoResult<List<TodoEntity>> =
         todoLocalDataSource.getAllTodos().let {
             if (it.isEmpty()) {
-                TodoResult.TodoData.Error(errorMessage = "No Todos found")
+                TodoResult.Error(errorMessage = "No Todos found")
             } else {
-                TodoResult.TodoData.Success(it)
+                TodoResult.Success(it)
             }
         }
 

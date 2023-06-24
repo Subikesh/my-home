@@ -3,13 +3,9 @@ package com.example.data.todo
 import com.google.gson.annotations.SerializedName
 
 // Domain Result
-sealed class TodoResult {
-    object Loading : TodoResult()
-    sealed class TodoData : TodoResult() {
-        data class Success(val data: List<TodoEntity>) : TodoData()
-        data class Error(val throwable: Throwable? = null, val errorMessage: String? = null) :
-            TodoData()
-    }
+sealed class TodoResult<out T> {
+    data class Success(val data: List<TodoEntity>) : TodoResult<List<TodoEntity>>()
+    data class Error(val throwable: Throwable? = null, val errorMessage: String? = null) : TodoResult<Nothing>()
 }
 
 // Data entity

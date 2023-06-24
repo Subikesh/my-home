@@ -20,6 +20,7 @@ class TodoViewModel : ViewModel() {
     fun fetchTodos() {
         viewModelScope.launch {
             try {
+                _todoUIState.value = TodoUIState.Loading
                 todoRepository.fetchTodos().collect { todoResult ->
                     Log.d("Todo", "Todo list fetched: $todoResult")
                     _todoUIState.value = todoResult.toUIState()
@@ -31,11 +32,10 @@ class TodoViewModel : ViewModel() {
     }
 }
 
-private fun TodoResult.toUIState(): TodoUIState =
+private fun TodoResult<List<TodoEntity>>.toUIState(): TodoUIState =
     when (this) {
-        is TodoResult.Loading -> TodoUIState.Loading
-        is TodoResult.TodoData.Success -> TodoUIState.Success(data)
-        is TodoResult.TodoData.Error -> TodoUIState.Error(
+        is TodoResult.Success -> TodoUIState.Success(data)
+        is TodoResult.Error -> TodoUIState.Error(
             errorMessage ?: throwable?.stackTraceToString() ?: "Somme error"
         )
     }
