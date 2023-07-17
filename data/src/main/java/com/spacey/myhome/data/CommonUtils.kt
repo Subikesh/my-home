@@ -1,4 +1,4 @@
-package com.example.data
+package com.spacey.myhome.data
 
 import android.content.Context
 import android.net.ConnectivityManager
