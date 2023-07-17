@@ -1,4 +1,4 @@
-package com.example.data.todo
+package com.spacey.myhome.data.todo
 
 object TodoNetworkKeyConstants {
     const val ID = "id"
@@ -8,6 +8,7 @@ object TodoNetworkKeyConstants {
 }
 
 object TodoDBKeyConstants {
+    const val ID = "id"
     const val TITLE = "title"
     const val IS_DONE = "is_done"
     const val CREATED_TIME = "created_time"
