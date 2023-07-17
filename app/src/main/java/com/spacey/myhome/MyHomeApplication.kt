@@ -1,7 +1,7 @@
 package com.spacey.myhome
 
 import android.app.Application
-import com.example.data.DIServiceLocator
+import com.spacey.myhome.data.DIServiceLocator
 
 class MyHomeApplication : Application() {
 

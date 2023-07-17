@@ -25,13 +25,6 @@
         android:textColor="?attr/colorPrimary"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/date_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/common_margin"
-        android:text="@string/hello_blank_fragment" />
-
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/date_fragment_container"
         android:layout_width="match_parent"

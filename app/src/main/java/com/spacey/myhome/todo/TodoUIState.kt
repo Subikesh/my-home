@@ -1,6 +1,6 @@
 package com.spacey.myhome.todo
 
-import com.example.data.todo.TodoEntity
+import com.spacey.myhome.data.todo.TodoEntity
 
 sealed class TodoUIState {
     object Loading : TodoUIState()

@@ -3,9 +3,10 @@ package com.spacey.myhome.todo
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.data.DIServiceLocator
-import com.example.data.todo.TodoRepository
-import com.example.data.todo.TodoResult
+import com.spacey.myhome.data.DIServiceLocator
+import com.spacey.myhome.data.base.Data
+import com.spacey.myhome.data.todo.TodoEntity
+import com.spacey.myhome.data.todo.TodoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -32,10 +33,10 @@ class TodoViewModel : ViewModel() {
     }
 }
 
-private fun TodoResult<List<TodoEntity>>.toUIState(): TodoUIState =
+private fun Data<List<TodoEntity>>.toUIState(): TodoUIState =
     when (this) {
-        is TodoResult.Success -> TodoUIState.Success(data)
-        is TodoResult.Error -> TodoUIState.Error(
-            errorMessage ?: throwable?.stackTraceToString() ?: "Somme error"
+        is Data.Success -> TodoUIState.Success(data)
+        is Data.Error -> TodoUIState.Error(
+            errorMessage ?: exception?.stackTraceToString() ?: "Somme error"
         )
     }

@@ -9,21 +9,15 @@ import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.spacey.myhome.date.DateFragment
 import com.spacey.myhome.date.DateViewModel
-import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
     private lateinit var homeCalendarView: CalendarView
     private lateinit var todayButton: TextView
-    private lateinit var dateText: TextView
 
     private val dateViewModel: DateViewModel by viewModels()
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,7 +28,6 @@ class HomeFragment : Fragment() {
         with(rootView) {
             homeCalendarView = findViewById(R.id.home_calendar)
             todayButton = findViewById(R.id.today_button)
-            dateText = findViewById(R.id.date_text)
         }
 
         val dateFragment = DateFragment()
@@ -51,6 +44,7 @@ class HomeFragment : Fragment() {
         val toolbar: Toolbar = requireActivity().findViewById(R.id.home_toolbar)
         toolbar.title = getString(R.string.app_name)
 
+        dateViewModel.setDate(homeCalendarView.date)
         setListeners()
     }
 
@@ -63,15 +57,6 @@ class HomeFragment : Fragment() {
 
         homeCalendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             dateViewModel.setDate(year, month, dayOfMonth)
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                dateViewModel.dateState.collect { selectedDate ->
-                    dateText.text =
-                        "Current date: ${selectedDate.dayOfMonth}/${selectedDate.month}/${selectedDate.year}"
-                }
-            }
         }
     }
 

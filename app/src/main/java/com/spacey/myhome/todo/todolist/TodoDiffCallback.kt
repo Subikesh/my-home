@@ -1,7 +1,7 @@
 package com.spacey.myhome.todo.todolist
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.data.todo.TodoEntity
+import com.spacey.myhome.data.todo.TodoEntity
 
 class TodoDiffCallback(
     private val oldTodoList: List<TodoEntity>,

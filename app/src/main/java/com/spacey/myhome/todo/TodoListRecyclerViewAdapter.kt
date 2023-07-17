@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.data.todo.TodoEntity
+import com.spacey.myhome.data.todo.TodoEntity
 import com.spacey.myhome.databinding.FragmentTodoItemBinding
 import com.spacey.myhome.todo.todolist.TodoDiffCallback
 
