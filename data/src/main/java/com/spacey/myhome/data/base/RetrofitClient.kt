@@ -1,4 +1,4 @@
-package com.example.data.base
+package com.spacey.myhome.data.base
 
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
