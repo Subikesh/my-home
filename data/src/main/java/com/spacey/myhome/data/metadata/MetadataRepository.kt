@@ -1,10 +1,8 @@
-package com.spacey.myhome.data.expense
+package com.spacey.myhome.data.metadata
 
+import android.util.Log
 import com.spacey.myhome.data.ConnectivityHelper
 import com.spacey.myhome.data.base.Data
-import com.spacey.myhome.data.expense.local.FieldDBEntity
-import com.spacey.myhome.data.expense.local.MetadataLocalDataSource
-import com.spacey.myhome.data.expense.remote.MetadataRemoteDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -19,11 +17,13 @@ class MetadataRepository(
                 val metadata = metadataRemoteDataSource.getMetadata()
                 metadataLocalDataSource.insertFieldsMetadata(metadata.fields.map { it.toFieldDBEntity() })
             }
+            Log.d("Meta", "Meta refreshed")
             Data.Success(MetadataEntity(metadataLocalDataSource.getFieldsMetadata()))
         } catch (e: Exception) {
+            e.printStackTrace()
             Data.Error(exception = e)
         }
     }
 
-    private fun FieldEntity.toFieldDBEntity(): FieldDBEntity = FieldDBEntity(id, name, type, input)
+    private fun FieldEntity.toFieldDBEntity(): FieldDBEntity = FieldDBEntity(id, name, routine, type)
 }

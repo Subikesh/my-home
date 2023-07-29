@@ -1,6 +1,5 @@
-package com.spacey.myhome.data.expense.remote
+package com.spacey.myhome.data.metadata
 
-import com.spacey.myhome.data.expense.MetadataEntity
 import retrofit2.http.GET
 
 interface MetadataRemoteDataSource {
