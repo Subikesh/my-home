@@ -3,13 +3,16 @@ package com.spacey.myhome.data
 import android.content.Context
 import com.spacey.myhome.data.base.AppDatabase
 import com.spacey.myhome.data.base.RetrofitClient
+import com.spacey.myhome.data.expense.ExpenseLocalDataSource
+import com.spacey.myhome.data.expense.ExpenseRemoteDataSource
 import com.spacey.myhome.data.expense.ExpenseRepository
-import com.spacey.myhome.data.expense.MetadataRepository
-import com.spacey.myhome.data.expense.local.MetadataLocalDataSource
-import com.spacey.myhome.data.expense.remote.MetadataRemoteDataSource
+import com.spacey.myhome.data.metadata.MetadataRepository
+import com.spacey.myhome.data.metadata.MetadataLocalDataSource
+import com.spacey.myhome.data.metadata.MetadataRemoteDataSource
 import com.spacey.myhome.data.todo.TodoRepository
 import com.spacey.myhome.data.todo.local.TodoLocalDataSource
 import com.spacey.myhome.data.todo.remote.TodoRemoteDataSource
+import retrofit2.create
 
 object DIServiceLocator {
 
@@ -30,7 +33,7 @@ object DIServiceLocator {
         )
     }
     val expenseRepository: ExpenseRepository by lazy {
-        ExpenseRepository(metadataRepository, connectivityHelper)
+        ExpenseRepository(connectivityHelper, expenseLocalDataSource, expenseRemoteDataSource)
     }
     val todoRepository: TodoRepository by lazy {
         TodoRepository(
@@ -40,13 +43,11 @@ object DIServiceLocator {
         )
     }
 
-    private val metadataRemoteDataSource: MetadataRemoteDataSource by lazy {
-        RetrofitClient.retrofit.create(MetadataRemoteDataSource::class.java)
-    }
+    private val metadataRemoteDataSource: MetadataRemoteDataSource by getRetrofitService()
+    private val todoRemoteDataSource: TodoRemoteDataSource by getRetrofitService()
+    private val expenseRemoteDataSource: ExpenseRemoteDataSource by getRetrofitService()
 
-    private val todoRemoteDataSource: TodoRemoteDataSource by lazy {
-        RetrofitClient.retrofit.create(TodoRemoteDataSource::class.java)
-    }
+    private inline fun <reified T> getRetrofitService() = lazy { RetrofitClient.retrofit.create<T>() }
 
     private val metadataLocalDatabase: MetadataLocalDataSource by lazy {
         roomDatabase.metadataLocalDataSource()
@@ -54,5 +55,9 @@ object DIServiceLocator {
 
     private val todoLocalDataSource: TodoLocalDataSource by lazy {
         roomDatabase.todoLocalDataSource()
+    }
+
+    private val expenseLocalDataSource: ExpenseLocalDataSource by lazy {
+        roomDatabase.expenseLocalDataSource()
     }
 }
