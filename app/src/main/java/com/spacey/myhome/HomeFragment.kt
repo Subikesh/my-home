@@ -56,7 +56,7 @@ class HomeFragment : Fragment() {
     private fun setListeners() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                dateViewModel.metadataDownloaded.collect { isDownloaded ->
+                dateViewModel.initialDownloadComplete.collect { isDownloaded ->
                     if (isDownloaded) {
                         homeProgress.visibility = View.GONE
                         homeLayout.visibility = View.VISIBLE
@@ -85,7 +85,7 @@ class HomeFragment : Fragment() {
             dateViewModel.setDate(year, month, dayOfMonth)
         }
 
-        dateViewModel.getMetadata()
+        dateViewModel.initialDownload()
     }
 
     companion object {

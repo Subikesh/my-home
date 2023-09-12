@@ -17,8 +17,8 @@ class DateViewModel : ViewModel() {
     private val _dateState: MutableStateFlow<DateUIState> = MutableStateFlow(DateUIState.LOADING(Calendar.getInstance()))
     val dateState: StateFlow<DateUIState> = _dateState
 
-    private val _metadataDownloaded = MutableStateFlow(false)
-    val metadataDownloaded: StateFlow<Boolean> = _metadataDownloaded
+    private val _initialDownloadComplete = MutableStateFlow(false)
+    val initialDownloadComplete: StateFlow<Boolean> = _initialDownloadComplete
 
     private val expenseRepository = DIServiceLocator.expenseRepository
 
@@ -52,11 +52,12 @@ class DateViewModel : ViewModel() {
         jobList.add(job)
     }
 
-    fun getMetadata() {
-        _metadataDownloaded.value = false
+    fun initialDownload() {
+        _initialDownloadComplete.value = false
         viewModelScope.launch {
-            Log.d("MEtadata", DIServiceLocator.metadataRepository.getMetadata().toString())
-            _metadataDownloaded.value = true
+            val metadata = DIServiceLocator.metadataRepository.getMetadata()
+            Log.d("MEtadata", metadata.toString())
+            _initialDownloadComplete.value = true
         }
     }
 
