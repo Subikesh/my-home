@@ -78,7 +78,7 @@ class DateFragment : Fragment() {
                         }
                     }
                     dateText.text =
-                        "Current date: ${dateState.date[Calendar.DAY_OF_MONTH]}/${dateState.date[Calendar.MONTH]}/${dateState.date[Calendar.YEAR]}\n"
+                        "Current date: ${dateState.date[Calendar.DAY_OF_MONTH]}/${dateState.date[Calendar.MONTH]+1}/${dateState.date[Calendar.YEAR]}\n"
                 }
             }
         }
