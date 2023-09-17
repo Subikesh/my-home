@@ -9,11 +9,13 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.spacey.myhome.date.DateFragment
 import com.spacey.myhome.date.DateViewModel
 import kotlinx.coroutines.launch
@@ -24,6 +26,8 @@ class HomeFragment : Fragment() {
     private lateinit var homeCalendarView: CalendarView
     private lateinit var todayButton: TextView
     private lateinit var homeProgress: ProgressBar
+    private lateinit var addFieldButton: FloatingActionButton
+    private lateinit var formBackButton: FloatingActionButton
 
     private val dateViewModel: DateViewModel by viewModels()
 
@@ -38,6 +42,8 @@ class HomeFragment : Fragment() {
             homeCalendarView = findViewById(R.id.home_calendar)
             todayButton = findViewById(R.id.today_button)
             homeProgress = findViewById(R.id.home_progress)
+            addFieldButton = findViewById(R.id.add_field)
+            formBackButton = findViewById(R.id.back_button)
         }
 
         return rootView
@@ -51,6 +57,7 @@ class HomeFragment : Fragment() {
 
         dateViewModel.setDate(homeCalendarView.date)
         setListeners()
+        dateViewModel.initialDownload()
     }
 
     private fun setListeners() {
@@ -70,7 +77,15 @@ class HomeFragment : Fragment() {
                         homeProgress.visibility = View.VISIBLE
                         homeLayout.visibility = View.GONE
                     }
-
+                }
+            }
+        }
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // TODO code not reached
+                dateViewModel.formOpened.collect { isFormOpened ->
+                    addFieldButton.isVisible = !isFormOpened
+                    formBackButton.isVisible = isFormOpened
                 }
             }
         }
@@ -85,7 +100,16 @@ class HomeFragment : Fragment() {
             dateViewModel.setDate(year, month, dayOfMonth)
         }
 
-        dateViewModel.initialDownload()
+        addFieldButton.setOnClickListener {
+            val fieldFormFragment = DateFieldFormFragment()
+            childFragmentManager.beginTransaction().replace(R.id.date_fragment_container, fieldFormFragment).commit()
+            dateViewModel.toggleDateForm()
+        }
+        formBackButton.setOnClickListener {
+            val dateFragment = DateFragment()
+            childFragmentManager.beginTransaction().replace(R.id.date_fragment_container, dateFragment).commit()
+            dateViewModel.toggleDateForm()
+        }
     }
 
     companion object {

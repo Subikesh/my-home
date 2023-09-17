@@ -15,7 +15,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.spacey.myhome.R
 import com.spacey.myhome.view.CounterView
 import kotlinx.coroutines.flow.collectIndexed
@@ -27,7 +26,6 @@ class DateFragment : Fragment() {
     private lateinit var dateText: TextView
     private lateinit var fieldsContainer: LinearLayout
     private lateinit var dateLoader: ProgressBar
-    private lateinit var fieldAddButton: FloatingActionButton
 
     private val dateViewModel: DateViewModel by viewModels({ requireParentFragment() })
 
@@ -36,15 +34,11 @@ class DateFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        val rootView = inflater.inflate(R.layout.fragment_date, container, false)
-        with(rootView) {
+        return inflater.inflate(R.layout.fragment_date, container, false).apply {
             dateText = findViewById(R.id.date_text)
             fieldsContainer = findViewById(R.id.fields_layout)
             dateLoader = findViewById(R.id.date_loader)
-            fieldAddButton = findViewById(R.id.add_field)
         }
-        return rootView
     }
 
     @SuppressLint("SetTextI18n")
@@ -85,15 +79,11 @@ class DateFragment : Fragment() {
                 }
             }
         }
-        fieldAddButton.setOnClickListener {
-            Log.d("Date", "Add field. ${dateText.text}")
-        }
     }
 
     private fun setLoading(isLoading: Boolean) {
         dateLoader.isVisible = isLoading
         fieldsContainer.isVisible = !isLoading
-        fieldAddButton.isVisible = !isLoading
     }
 
 }
