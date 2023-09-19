@@ -17,8 +17,11 @@ class DateViewModel : ViewModel() {
     private val _dateState: MutableStateFlow<DateUIState> = MutableStateFlow(DateUIState.LOADING(Calendar.getInstance()))
     val dateState: StateFlow<DateUIState> = _dateState
 
-    private val _metadataDownloaded = MutableStateFlow(false)
-    val metadataDownloaded: StateFlow<Boolean> = _metadataDownloaded
+    private val _initialDownloadComplete = MutableStateFlow(false)
+    val initialDownloadComplete: StateFlow<Boolean> = _initialDownloadComplete
+
+    private val _formOpened = MutableStateFlow(false)
+    val formOpened: StateFlow<Boolean> = _formOpened
 
     private val expenseRepository = DIServiceLocator.expenseRepository
 
@@ -33,6 +36,19 @@ class DateViewModel : ViewModel() {
 
     fun setDate(millis: Long) {
         setDate(Calendar.getInstance().apply { timeInMillis = millis })
+    }
+
+    fun initialDownload() {
+        _initialDownloadComplete.value = false
+        viewModelScope.launch {
+            val metadata = DIServiceLocator.metadataRepository.getMetadata()
+            Log.d("MEtadata", metadata.toString())
+            _initialDownloadComplete.value = true
+        }
+    }
+
+    fun toggleDateForm() {
+        _formOpened.value = !formOpened.value
     }
 
     private fun setDate(calendar: Calendar) {
@@ -50,14 +66,6 @@ class DateViewModel : ViewModel() {
             }
         }
         jobList.add(job)
-    }
-
-    fun getMetadata() {
-        _metadataDownloaded.value = false
-        viewModelScope.launch {
-            Log.d("MEtadata", DIServiceLocator.metadataRepository.getMetadata().toString())
-            _metadataDownloaded.value = true
-        }
     }
 
     private fun Data<DateExpensesEntity>.toUIState(date: Calendar): DateUIState {

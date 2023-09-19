@@ -5,5 +5,7 @@
     <string name="hello_blank_fragment">Hello fragment</string>
     <string name="today">Today</string>
     <string name="home">Home</string>
+    <string name="add_new_field">Add new field</string>
+    <string name="date_back_button">Date back button</string>
 
 </resources>

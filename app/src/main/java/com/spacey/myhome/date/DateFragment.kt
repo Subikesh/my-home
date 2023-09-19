@@ -34,14 +34,11 @@ class DateFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        val rootView = inflater.inflate(R.layout.fragment_date, container, false)
-        with(rootView) {
+        return inflater.inflate(R.layout.fragment_date, container, false).apply {
             dateText = findViewById(R.id.date_text)
             fieldsContainer = findViewById(R.id.fields_layout)
             dateLoader = findViewById(R.id.date_loader)
         }
-        return rootView
     }
 
     @SuppressLint("SetTextI18n")
@@ -78,7 +75,7 @@ class DateFragment : Fragment() {
                         }
                     }
                     dateText.text =
-                        "Current date: ${dateState.date[Calendar.DAY_OF_MONTH]}/${dateState.date[Calendar.MONTH]}/${dateState.date[Calendar.YEAR]}\n"
+                        "Current date: ${dateState.date[Calendar.DAY_OF_MONTH]}/${dateState.date[Calendar.MONTH]+1}/${dateState.date[Calendar.YEAR]}\n"
                 }
             }
         }
