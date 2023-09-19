@@ -82,7 +82,6 @@ class HomeFragment : Fragment() {
         }
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // TODO code not reached
                 dateViewModel.formOpened.collect { isFormOpened ->
                     addFieldButton.isVisible = !isFormOpened
                     formBackButton.isVisible = isFormOpened

@@ -47,7 +47,7 @@ class DateFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                dateViewModel.dateState.collectIndexed { index, dateState ->
+                dateViewModel.dateState.collectIndexed { _, dateState ->
                     fieldsContainer.removeAllViewsInLayout()
                     setLoading(dateState is DateUIState.LOADING)
                     when (dateState) {
