@@ -16,6 +16,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.spacey.myhome.date.DateFormFragment
 import com.spacey.myhome.date.DateFragment
 import com.spacey.myhome.date.DateViewModel
 import kotlinx.coroutines.launch
@@ -100,7 +101,8 @@ class HomeFragment : Fragment() {
         }
 
         addFieldButton.setOnClickListener {
-            val fieldFormFragment = DateFieldFormFragment()
+//            val fieldFormFragment = DateFieldFormFragment()
+            val fieldFormFragment = DateFormFragment()
             childFragmentManager.beginTransaction().replace(R.id.date_fragment_container, fieldFormFragment).commit()
             dateViewModel.toggleDateForm()
         }
