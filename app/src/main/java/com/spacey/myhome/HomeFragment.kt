@@ -17,7 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.spacey.myhome.date.DateFormFragment
-import com.spacey.myhome.date.DateFragment
+import com.spacey.myhome.date.DateScreen
 import com.spacey.myhome.date.DateViewModel
 import kotlinx.coroutines.launch
 
@@ -70,7 +70,8 @@ class HomeFragment : Fragment() {
                         homeProgress.visibility = View.GONE
                         homeLayout.visibility = View.VISIBLE
 
-                        val dateFragment = DateFragment()
+//                        val dateFragment = DateFragment()
+                        val dateFragment = DateScreen()
                         childFragmentManager.beginTransaction()
                             .add(R.id.date_fragment_container, dateFragment)
                             .addToBackStack(null)
@@ -107,7 +108,8 @@ class HomeFragment : Fragment() {
             dateViewModel.toggleDateForm()
         }
         formBackButton.setOnClickListener {
-            val dateFragment = DateFragment()
+            val dateFragment = DateScreen()
+//            val dateFragment = DateFragment()
             childFragmentManager.beginTransaction().replace(R.id.date_fragment_container, dateFragment).commit()
             dateViewModel.toggleDateForm()
         }
