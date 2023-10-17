@@ -137,8 +137,9 @@ fun NumberField(
 
 sealed class Field(open val label: String) {
     // TODO: Give enum class type as param instead of List<String>?
-    class Picklist(override val label: String, val options: List<String>, var value: String) : Field(label)
-    class Date(override val label: String, var value: Long) : Field(label)
-    class Text(override val label: String, var value: String = "") : Field(label)
-    class Counter(override val label: String, var value: Int = 0) : Field(label)
+    class Picklist(override val label: String, val options: List<String>, var value: String, isVisible: Boolean = true) : Field(label, isVisible)
+    class Date(override val label: String, var value: Long, isVisible: Boolean = true) : Field(label, isVisible)
+    class Text(override val label: String, var value: String = "", isVisible: Boolean = true) : Field(label, isVisible)
+    class Counter(override val label: String, var value: Int = 0, isVisible: Boolean = true) : Field(label, isVisible)
+    class CheckBox(override val label: String, var value: Boolean = false, isVisible: Boolean = true): Field(label, isVisible)
 }
