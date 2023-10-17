@@ -36,14 +36,15 @@ class MainActivity : AppCompatActivity() {
                     val homeFragment = HomeFragment()
                     homeFragment.arguments = bundleOf(HomeFragment.SAMPLE_STRING_KEY to "Home")
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.home_fragment_container, homeFragment).commit()
+                        .add(R.id.home_fragment_container, homeFragment)
+                        .commit()
                 }
 
                 R.id.nav_todo -> {
                     val todoFragment = TodoFragment()
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.home_fragment_container, todoFragment)
-                        .addToBackStack("TodoFragment").commit()
+                        .add(R.id.home_fragment_container, todoFragment)
+                        .commit()
                 }
 
                 else -> {}

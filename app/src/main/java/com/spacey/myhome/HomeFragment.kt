@@ -56,6 +56,7 @@ class HomeFragment : Fragment() {
         val toolbar: Toolbar = requireActivity().findViewById(R.id.home_toolbar)
         toolbar.title = getString(R.string.app_name)
 
+        setFormVisibility(false)
         dateViewModel.setDate(homeCalendarView.date)
         setListeners()
         dateViewModel.initialDownload()
@@ -71,7 +72,8 @@ class HomeFragment : Fragment() {
 
                         val dateFragment = DateFragment()
                         childFragmentManager.beginTransaction()
-                            .replace(R.id.date_fragment_container, dateFragment)
+                            .add(R.id.date_fragment_container, dateFragment)
+                            .addToBackStack(null)
                             .commit()
 
                     } else {
@@ -84,8 +86,7 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 dateViewModel.formOpened.collect { isFormOpened ->
-                    addFieldButton.isVisible = !isFormOpened
-                    formBackButton.isVisible = isFormOpened
+                    setFormVisibility(isFormOpened)
                 }
             }
         }
@@ -101,9 +102,8 @@ class HomeFragment : Fragment() {
         }
 
         addFieldButton.setOnClickListener {
-//            val fieldFormFragment = DateFieldFormFragment()
             val fieldFormFragment = DateFormFragment()
-            childFragmentManager.beginTransaction().replace(R.id.date_fragment_container, fieldFormFragment).commit()
+            childFragmentManager.beginTransaction().replace(R.id.date_fragment_container, fieldFormFragment).addToBackStack("FormFragment").commit()
             dateViewModel.toggleDateForm()
         }
         formBackButton.setOnClickListener {
@@ -111,6 +111,11 @@ class HomeFragment : Fragment() {
             childFragmentManager.beginTransaction().replace(R.id.date_fragment_container, dateFragment).commit()
             dateViewModel.toggleDateForm()
         }
+    }
+
+    private fun setFormVisibility(isVisible: Boolean) {
+        addFieldButton.isVisible = !isVisible
+        formBackButton.isVisible = isVisible
     }
 
     companion object {
