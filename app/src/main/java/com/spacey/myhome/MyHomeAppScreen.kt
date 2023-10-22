@@ -24,6 +24,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -41,10 +43,14 @@ fun MyHomeAppScreen(navController: NavHostController) {
         NavItem.Notification
     )
     var selectedItem by remember { mutableIntStateOf(0) }
+    val haptics = LocalHapticFeedback.current
     Scaffold(
         topBar = {
             TopAppBar(title = {
-                IconButton(onClick = { navController.navigate(NavRoute.HOME) }) {
+                IconButton(onClick = {
+                    navController.navigate(NavRoute.HOME)
+                    haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                }) {
                     Icon(Icons.Filled.Home, contentDescription = "Home")
                 }
             })
@@ -57,6 +63,7 @@ fun MyHomeAppScreen(navController: NavHostController) {
                         onClick = {
                             selectedItem = i
                             navController.navigate(navItem.route)
+                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         },
                         icon = {
                             if (navItem == NavItem.Notification) {
@@ -80,6 +87,7 @@ fun MyHomeAppScreen(navController: NavHostController) {
         }, floatingActionButton = {
             LargeFloatingActionButton(onClick = {
                 navController.navigate(NavRoute.FORM)
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
             }, shape = RoundedCornerShape(20)) {
                 Icon(Icons.Default.Add, contentDescription = "Form")
             }
