@@ -4,6 +4,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.InsertChart
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -27,13 +29,20 @@ fun MyHomeNavHost(navController: NavHostController) {
         composable(NavRoute.NOTIFICATION) {
             Text("Hello Android! We are in Notification screen")
         }
+        composable(NavRoute.SETTINGS) {
+            Text("Hello Android! We are in Settings screen")
+        }
     }
 }
 
 
-enum class NavItem(val label: String, val icon: ImageVector, val route: String) {
+enum class NavItem(val label: String, private val icon: ImageVector, val route: String) {
     Home("Home", Icons.Default.Home, NavRoute.HOME),
     Report("Report", Icons.Default.InsertChart, NavRoute.REPORT),
-    Notification("Notification", Icons.Default.Notifications, NavRoute.NOTIFICATION)
+    Notification("Notification", Icons.Default.Notifications, NavRoute.NOTIFICATION),
+    Settings("Settings", Icons.Default.Settings, NavRoute.SETTINGS);
+
+    @Composable
+    fun Icon() = Icon(icon, contentDescription = label)
 }
 

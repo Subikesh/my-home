@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +39,9 @@ fun MyHomeAppScreen(navController: NavHostController) {
     val navList = listOf(
         NavItem.Home,
         NavItem.Report,
+        NavItem.Settings
+    )
+    val topBarActions = listOf(
         NavItem.Notification
     )
     var selectedItem by remember { mutableIntStateOf(0) }
@@ -47,11 +49,16 @@ fun MyHomeAppScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(title = {
+                val titleItem = NavItem.Home
                 IconButton(onClick = {
-                    navController.navigate(NavRoute.HOME)
+                    navController.popBackStack(titleItem.route, inclusive = false)
                     haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 }) {
-                    Icon(Icons.Filled.Home, contentDescription = "Home")
+                    titleItem.Icon()
+                }
+            }, actions = {
+                topBarActions.forEach { navItem ->
+                    IconButton(onClick = { navController.navigate(navItem.route) }) { navItem.Icon() }
                 }
             })
         },
@@ -66,17 +73,20 @@ fun MyHomeAppScreen(navController: NavHostController) {
                             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         },
                         icon = {
-                            if (navItem == NavItem.Notification) {
-                                BadgedBox(badge = {
-                                    val count = getNotificationCount()
-                                    if (count > 0) {
-                                        Badge { Text(getNotificationCount().toString()) }
+                            when (navItem) {
+                                NavItem.Notification -> {
+                                    BadgedBox(badge = {
+                                        val count = getNotificationCount()
+                                        if (count > 0) {
+                                            Badge { Text(getNotificationCount().toString()) }
+                                        }
+                                    }) {
+                                        navItem.Icon()
                                     }
-                                }) {
-                                    Icon(navItem.icon, navItem.label)
                                 }
-                            } else {
-                                Icon(navItem.icon, contentDescription = navItem.label)
+                                else -> {
+                                    navItem.Icon()
+                                }
                             }
                         },
                         label = { Text(navItem.label) },
