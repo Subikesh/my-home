@@ -16,27 +16,27 @@ import com.spacey.myhome.home.HomeScreen
 
 @Composable
 fun MyHomeNavHost(navController: NavHostController) {
-    NavHost(navController, startDestination = NavRoute.HOME) {
-        composable(NavRoute.HOME) {
+    NavHost(navController, startDestination = NavRoute.HOME.route) {
+        composable(NavRoute.HOME.route) {
             HomeScreen()
         }
-        composable(NavRoute.REPORT) {
+        composable(NavRoute.REPORT.route) {
             Text("Hello Android! We are in Reports screen")
         }
-        composable(NavRoute.FORM) {
+        composable(NavRoute.FORM.route) {
             Text("Hello Android! We are in Form screen")
         }
-        composable(NavRoute.NOTIFICATION) {
+        composable(NavRoute.NOTIFICATION.route) {
             Text("Hello Android! We are in Notification screen")
         }
-        composable(NavRoute.SETTINGS) {
+        composable(NavRoute.SETTINGS.route) {
             Text("Hello Android! We are in Settings screen")
         }
     }
 }
 
 
-enum class NavItem(val label: String, private val icon: ImageVector, val route: String) {
+enum class NavItem(val label: String, private val icon: ImageVector, val route: NavRoute) {
     Home("Home", Icons.Default.Home, NavRoute.HOME),
     Report("Report", Icons.Default.InsertChart, NavRoute.REPORT),
     Notification("Notification", Icons.Default.Notifications, NavRoute.NOTIFICATION),

@@ -1,5 +1,7 @@
 package com.spacey.myhome
 
+import android.util.Log
+import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,9 +20,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -28,14 +32,29 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
 import com.spacey.myhome.navigation.MyHomeNavHost
 import com.spacey.myhome.navigation.NavItem
 import com.spacey.myhome.navigation.NavRoute
+import com.spacey.myhome.navigation.navigateTo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyHomeAppScreen(navController: NavHostController) {
+
+    LaunchedEffect(key1 = "") {
+        withContext(Dispatchers.IO) {
+            navController.currentBackStackEntryFlow.collect {
+                Log.d("BackStack", "Current stack: ${it.destination.route}")
+            }
+        }
+    }
+
     val navList = listOf(
         NavItem.Home,
         NavItem.Report,
@@ -51,14 +70,14 @@ fun MyHomeAppScreen(navController: NavHostController) {
             TopAppBar(title = {
                 val titleItem = NavItem.Home
                 IconButton(onClick = {
-                    navController.popBackStack(titleItem.route, inclusive = false)
+                    navController.navigateTo(titleItem.route)
                     haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 }) {
                     titleItem.Icon()
                 }
             }, actions = {
                 topBarActions.forEach { navItem ->
-                    IconButton(onClick = { navController.navigate(navItem.route) }) { navItem.Icon() }
+                    IconButton(onClick = { navController.navigateTo(navItem.route) }) { navItem.Icon() }
                 }
             })
         },
@@ -66,10 +85,10 @@ fun MyHomeAppScreen(navController: NavHostController) {
             NavigationBar {
                 navList.forEachIndexed { i, navItem ->
                     NavigationBarItem(
-                        selected = navController.currentDestination?.route == navItem.route,
+                        selected = navController.currentDestination?.route == navItem.route.route,
                         onClick = {
                             selectedItem = i
-                            navController.navigate(navItem.route)
+                            navController.navigateTo(navItem.route)
                             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         },
                         icon = {
@@ -96,7 +115,7 @@ fun MyHomeAppScreen(navController: NavHostController) {
             }
         }, floatingActionButton = {
             LargeFloatingActionButton(onClick = {
-                navController.navigate(NavRoute.FORM)
+                navController.navigateTo(NavRoute.FORM)
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
             }, shape = RoundedCornerShape(20)) {
                 Icon(Icons.Default.Add, contentDescription = "Form")

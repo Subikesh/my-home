@@ -1,11 +1,27 @@
 package com.spacey.myhome.navigation
 
-object NavRoute {
-    const val HOME = "home"
+import androidx.navigation.NavController
+import androidx.navigation.navOptions
 
-    const val FORM = "form"
-    const val REPORT = "report"
+enum class NavRoute(val route: String) {
+    HOME("home"),
+    FORM("form"),
+    REPORT("report"),
+    SETTINGS("settings"),
+    NOTIFICATION("notification")
+}
 
-    const val SETTINGS = "settings"
-    const val NOTIFICATION = "notification"
+fun NavController.navigateTo(navRoute: NavRoute) {
+    val navigateFromHome = navOptions {
+        popUpTo(NavRoute.HOME.route) { inclusive = false }
+    }
+    val navigateToHome = navOptions {
+        popUpTo(NavRoute.HOME.route) { inclusive = true }
+    }
+    when (navRoute) {
+        NavRoute.HOME -> this.navigate(navRoute.route, navigateToHome)
+        // Bottom nav onBackPressed should return to home
+        NavRoute.REPORT, NavRoute.SETTINGS -> this.navigate(navRoute.route, navigateFromHome)
+        else -> this.navigate(navRoute.route)
+    }
 }
