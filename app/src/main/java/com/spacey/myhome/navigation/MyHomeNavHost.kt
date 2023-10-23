@@ -43,6 +43,9 @@ enum class NavItem(val label: String, private val icon: ImageVector, val route: 
     Settings("Settings", Icons.Default.Settings, NavRoute.SETTINGS);
 
     @Composable
-    fun Icon() = Icon(icon, contentDescription = label)
+    fun Icon() = when (this) {
+        Home -> Icon(painter = painterResource(id = R.drawable.ic_home_icon), contentDescription = "Home")
+        else -> Icon(icon, contentDescription = label)
+    }
 }
 
