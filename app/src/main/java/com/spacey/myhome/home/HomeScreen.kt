@@ -160,6 +160,8 @@ sealed class Field(open val label: String) {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun CardView(modifier: Modifier = Modifier) {
+        if (!isVisible.value) return
+
         val haptic = LocalHapticFeedback.current
         when (this) {
             is Counter -> {
@@ -208,7 +210,10 @@ sealed class Field(open val label: String) {
                 ElevatedCard(
                     colors = CardDefaults.cardColors(color),
                     elevation = CardDefaults.elevatedCardElevation(4.dp),
-                    onClick = { checked = !checked }
+                    onClick = {
+                        checked = !checked
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    }
                 ) {
                     Text(
                         text = this@Field.label,

@@ -63,6 +63,7 @@ fun MyHomeAppScreen(navController: NavHostController) {
     val topBarActions = listOf(
         NavItem.Notification
     )
+    // TODO: when back pressed, selected item is not changed
     var selectedItem by remember { mutableIntStateOf(0) }
     val haptics = LocalHapticFeedback.current
     Scaffold(
@@ -87,9 +88,11 @@ fun MyHomeAppScreen(navController: NavHostController) {
                     NavigationBarItem(
                         selected = navController.currentDestination?.route == navItem.route.route,
                         onClick = {
-                            selectedItem = i
-                            navController.navigateTo(navItem.route)
-                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            if (navController.currentDestination?.route != navItem.route.route) {
+                                selectedItem = i
+                                navController.navigateTo(navItem.route)
+                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            }
                         },
                         icon = {
                             when (navItem) {
