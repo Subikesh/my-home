@@ -78,20 +78,6 @@ fun HomeScreen() {
 
         items(cardList) { field ->
             field.CardView()
-//            Card(
-//                onClick = {  },
-//                shape = RoundedCornerShape(20.dp),
-//                elevation = CardDefaults.cardElevation(4.dp),
-//                modifier = Modifier.size((((i % 3) + 1) * 100).dp)
-//            ) {
-//                Text(
-//                    text = field.label,
-//                    textAlign = TextAlign.Center,
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .padding(16.dp)
-//                )
-//            }
         }
     }
 

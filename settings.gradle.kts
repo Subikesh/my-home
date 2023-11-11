@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MyHome"
 include(":app")
- 
+include(":myhomecore")
