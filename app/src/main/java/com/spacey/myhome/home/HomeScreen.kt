@@ -152,7 +152,7 @@ sealed class Field(open val label: String) {
     class Picklist(override val label: String, val options: List<String>, var value: String) :
         Field(label)
 
-    class Date(override val label: String, var value: Long) : Field(label)
+    class Date(override val label: String, var value: LocalDate) : Field(label)
     class Amount(override val label: String, var value: String = "") : Field(label)
     class Counter(override val label: String, var value: Int = 0) : Field(label)
     class CheckBox(override val label: String, var value: Boolean = false) : Field(label)
