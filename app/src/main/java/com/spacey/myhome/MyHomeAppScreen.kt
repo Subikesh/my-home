@@ -40,7 +40,6 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyHomeAppScreen(navController: NavHostController) {
-
     LaunchedEffect(key1 = "") {
         withContext(Dispatchers.IO) {
             navController.currentBackStackEntryFlow.collect {
@@ -48,7 +47,6 @@ fun MyHomeAppScreen(navController: NavHostController) {
             }
         }
     }
-
     val navList = listOf(
         NavItem.Home,
         NavItem.Report,

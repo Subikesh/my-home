@@ -1,5 +1,6 @@
 package com.spacey.myhome.navigation
 
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.InsertChart
@@ -29,7 +30,8 @@ fun MyHomeNavHost(navController: NavHostController) {
         }
         composable(NavRoute.FORM.route) {
             MyHomeFormScreen(currentDate = LocalDate.now()) {
-
+                Log.d("Form", "Final values: $it")
+                navController.popBackStack()
             }
         }
         composable(NavRoute.NOTIFICATION.route) {

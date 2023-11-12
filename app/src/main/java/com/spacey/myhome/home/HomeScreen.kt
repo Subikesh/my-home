@@ -1,7 +1,6 @@
 package com.spacey.myhome.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,10 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +24,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -44,7 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.spacey.myhome.utils.toLocalDate
+import com.spacey.myhome.utils.HomeDatePickerRow
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -71,8 +66,23 @@ fun HomeScreen() {
         verticalItemSpacing = 24.dp
     ) {
         item(span = StaggeredGridItemSpan.Companion.FullLine) {
-            HomeDatePicker(date = selectedDate) {
-                selectedDate = it
+            HomeDatePickerRow(initialDate = selectedDate,
+                onDateChanged = { selectedDate = it }) {
+                Text(
+                    "${selectedDate.dayOfMonth} ${
+                        selectedDate.month.getDisplayName(
+                            TextStyle.SHORT,
+                            Locale.getDefault()
+                        )
+                    } ${selectedDate.year},\n${selectedDate.dayOfWeek}",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.displayMedium
+                )
+                Icon(
+                    Icons.Default.Edit,
+                    contentDescription = "Date edit",
+                    modifier = Modifier.padding(16.dp)
+                )
             }
         }
 
@@ -85,49 +95,74 @@ fun HomeScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeDatePicker(date: LocalDate, onDateChanged: (LocalDate) -> Unit) {
-    val haptics = LocalHapticFeedback.current
-    var showDateDialog by remember { mutableStateOf(false) }
-    Row(
-        Modifier.clickable { showDateDialog = true },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            "${date.dayOfMonth} ${
-                date.month.getDisplayName(
-                    TextStyle.SHORT,
-                    Locale.getDefault()
+fun Field.CardView(modifier: Modifier = Modifier) {
+    if (!isVisible.value) return
+
+    val haptic = LocalHapticFeedback.current
+    when (this) {
+        is Field.Counter -> {
+            var count by remember { mutableIntStateOf(this.value) }
+            ElevatedCard(
+                elevation = CardDefaults.elevatedCardElevation(4.dp),
+                modifier = modifier
+            ) {
+                Text(
+                    text = this@CardView.label,
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
                 )
-            } ${date.year},\n${date.dayOfWeek}",
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.displayMedium
-        )
-        Icon(
-            Icons.Default.Edit,
-            contentDescription = "Date edit",
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-    if (showDateDialog) {
-        val dateState = rememberDatePickerState()
-
-        if (dateState.selectedDateMillis != null) {
-            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        }
-
-        DatePickerDialog(
-            onDismissRequest = { showDateDialog = false },
-            confirmButton = {
-                Button(onClick = {
-                    dateState.selectedDateMillis?.let { onDateChanged(it.toLocalDate()) }
-                    showDateDialog = false
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                }) {
-                    Text("Confirm")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    IconButton(onClick = {
+                        count--
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    }, enabled = count > 0, modifier = Modifier.weight(1f)) {
+                        Icon(Icons.Default.Remove, "Reduce count")
+                    }
+                    Text(
+                        text = count.toString(),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                    IconButton(onClick = {
+                        count++
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    }, modifier = Modifier.weight(1f)) {
+                        Icon(Icons.Default.Add, "Increase count")
+                    }
                 }
-            }) {
-            DatePicker(state = dateState)
+            }
         }
+
+        is Field.CheckBox -> {
+            var checked by remember { mutableStateOf(false) }
+            // TODO: secondary color wont work here. Set it as green
+            val color =
+                if (checked) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
+            ElevatedCard(
+                colors = CardDefaults.cardColors(color),
+                elevation = CardDefaults.elevatedCardElevation(4.dp),
+                onClick = {
+                    checked = !checked
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                }
+            ) {
+                Text(
+                    text = this@CardView.label,
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                )
+            }
+        }
+
+        else -> {}
     }
 }
 
@@ -143,76 +178,13 @@ sealed class Field(open val label: String) {
     class Counter(override val label: String, var value: Int = 0) : Field(label)
     class CheckBox(override val label: String, var value: Boolean = false) : Field(label)
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun CardView(modifier: Modifier = Modifier) {
-        if (!isVisible.value) return
-
-        val haptic = LocalHapticFeedback.current
-        when (this) {
-            is Counter -> {
-                var count by remember { mutableIntStateOf(this.value) }
-                ElevatedCard(
-                    elevation = CardDefaults.elevatedCardElevation(4.dp),
-                    modifier = modifier
-                ) {
-                    Text(
-                        text = this@Field.label,
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        IconButton(onClick = {
-                            count--
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        }, enabled = count > 0, modifier = Modifier.weight(1f)) {
-                            Icon(Icons.Default.Remove, "Reduce count")
-                        }
-                        Text(
-                            text = count.toString(),
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                        )
-                        IconButton(onClick = {
-                            count++
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        }, modifier = Modifier.weight(1f)) {
-                            Icon(Icons.Default.Add, "Increase count")
-                        }
-                    }
-                }
-            }
-
-            is CheckBox -> {
-                var checked by remember { mutableStateOf(false) }
-                // TODO: secondary color wont work here. Set it as green
-                val color =
-                    if (checked) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
-                ElevatedCard(
-                    colors = CardDefaults.cardColors(color),
-                    elevation = CardDefaults.elevatedCardElevation(4.dp),
-                    onClick = {
-                        checked = !checked
-                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    }
-                ) {
-                    Text(
-                        text = this@Field.label,
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                    )
-                }
-            }
-
-            else -> {}
+    override fun toString(): String {
+        return when (this) {
+            is Amount -> "Field: $label is $value"
+            is CheckBox -> "Field: $label is $value"
+            is Counter -> "Field: $label is $value"
+            is Date -> "Field: $label is $value"
+            is Picklist -> "Field: $label is $value"
         }
     }
 }
