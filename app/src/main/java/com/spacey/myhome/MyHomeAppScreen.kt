@@ -1,10 +1,8 @@
 package com.spacey.myhome
 
 import android.util.Log
-import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Badge
@@ -24,7 +22,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -32,15 +29,12 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
 import com.spacey.myhome.navigation.MyHomeNavHost
 import com.spacey.myhome.navigation.NavItem
 import com.spacey.myhome.navigation.NavRoute
 import com.spacey.myhome.navigation.navigateTo
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,7 +114,7 @@ fun MyHomeAppScreen(navController: NavHostController) {
             LargeFloatingActionButton(onClick = {
                 navController.navigateTo(NavRoute.FORM)
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-            }, shape = RoundedCornerShape(20)) {
+            }) {
                 Icon(Icons.Default.Add, contentDescription = "Form")
             }
         }, contentWindowInsets = WindowInsets(16.dp, 8.dp, 16.dp, 8.dp)
