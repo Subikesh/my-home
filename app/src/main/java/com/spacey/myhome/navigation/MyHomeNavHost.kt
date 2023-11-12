@@ -14,7 +14,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.spacey.myhome.R
+import com.spacey.myhome.form.MyHomeFormScreen
 import com.spacey.myhome.home.HomeScreen
+import java.time.LocalDate
 
 @Composable
 fun MyHomeNavHost(navController: NavHostController) {
@@ -26,7 +28,9 @@ fun MyHomeNavHost(navController: NavHostController) {
             Text("Hello Android! We are in Reports screen")
         }
         composable(NavRoute.FORM.route) {
-            Text("Hello Android! We are in Form screen")
+            MyHomeFormScreen(currentDate = LocalDate.now()) {
+
+            }
         }
         composable(NavRoute.NOTIFICATION.route) {
             Text("Hello Android! We are in Notification screen")
