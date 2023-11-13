@@ -1,6 +1,6 @@
 plugins {
     id(libs.plugins.androidApplication.get().pluginId)
-    id(libs.plugins.kotlinAndroid.get().pluginId)
+    alias(libs.plugins.kotlinAndroid)
 }
 
 android {
@@ -50,7 +50,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":myhomecore"))
+    implementation(project(":data"))
 
     implementation(libs.accompanist.systemuicontroller)
 
