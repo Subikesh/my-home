@@ -5,7 +5,6 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 import com.spacey.data.base.DBConstant
 import com.spacey.data.base.InputType
 import com.spacey.data.base.ServiceCol
@@ -16,25 +15,20 @@ import java.time.Month
 // TODO: Setup one to one or other relations
 @Entity(tableName = Table.SERVICE)
 data class Service(
+    @ColumnInfo(ServiceCol.NAME) val name: String,
     @ColumnInfo(ServiceCol.TYPE) val type: InputType,
     @ColumnInfo(ServiceCol.AMOUNT) val amount: Double,
-    @PrimaryKey(autoGenerate = true) val serviceId: Int = 0
+    @PrimaryKey(autoGenerate = true) val id: Long = 0
 )
 
 @Entity(tableName = Table.EXPENSE, foreignKeys = [
-    ForeignKey(Service::class, ["serviceId"], [ExpenseCol.SERVICE_ID])
+    ForeignKey(Service::class, ["id"], [ExpenseCol.SERVICE_ID])
 ])
 data class Expense(
-    @ColumnInfo(ExpenseCol.SERVICE_ID) val serviceId: Int,
+    @ColumnInfo(ExpenseCol.SERVICE_ID) val serviceId: Long,
     @ColumnInfo(ExpenseCol.AMOUNT) val amount: Float,
     @Embedded val dateRecurrence: DateRecurrence,
-    @PrimaryKey(autoGenerate = true) val expenseId: Int = 0
-)
-
-data class ExpenseAndService(
-    @Embedded val expense: Expense,
-    @Relation(parentColumn = "expenseId", entityColumn = "serviceId")
-    val service: Service
+    @PrimaryKey(autoGenerate = true) val id: Long = 0
 )
 
 // TODO: On insertion of date recursion, if that date already exist for that expense, split it and add the latest one on top
