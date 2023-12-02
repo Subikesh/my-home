@@ -11,7 +11,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.spacey.data.service.DateRecurrence
 import com.spacey.data.service.Expense
 import com.spacey.data.service.ExpenseDao
 import com.spacey.data.service.RecurrenceType
@@ -30,8 +29,7 @@ import java.time.format.DateTimeFormatter
 @Database(
     entities = [
         Expense::class,
-        Service::class,
-        DateRecurrence::class
+        Service::class
     ], version = 0
 )
 @TypeConverters(Converters::class)
@@ -79,11 +77,6 @@ interface BaseDao<T> {
 object ServiceCol {
     const val TYPE = "type"
     const val AMOUNT = "amount"
-}
-
-object RecurrenceCol {
-    const val RECURRENCE_TYPE = "recurrence_type"
-    const val VALUE = "value"
 }
 
 object DBConstant {

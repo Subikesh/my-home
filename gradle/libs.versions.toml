@@ -15,6 +15,7 @@ lifecycleRuntimeKtx = "2.6.2"
 material = "1.10.0"
 navigationCompose = "2.7.5"
 retrofit = "2.9.0"
+roomKtx = "2.6.1"
 roomRuntime = "2.6.0"
 room-database = "2.5.2"
 
@@ -27,6 +28,7 @@ androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-j
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 junit = { module = "junit:junit", version.ref = "junit" }

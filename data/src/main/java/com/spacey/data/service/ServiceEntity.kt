@@ -1,9 +1,11 @@
 package com.spacey.data.service
 
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.Relation
 import com.spacey.data.base.DBConstant
 import com.spacey.data.base.InputType
 import com.spacey.data.base.ServiceCol
@@ -16,27 +18,30 @@ import java.time.Month
 data class Service(
     @ColumnInfo(ServiceCol.TYPE) val type: InputType,
     @ColumnInfo(ServiceCol.AMOUNT) val amount: Double,
-    @PrimaryKey(autoGenerate = true) val id: Int = 0
+    @PrimaryKey(autoGenerate = true) val serviceId: Int = 0
 )
 
 @Entity(tableName = Table.EXPENSE, foreignKeys = [
-    ForeignKey(Service::class, ["id"], [ExpenseCol.SERVICE]),
-    ForeignKey(DateRecurrence::class, ["id"], [ExpenseCol.DATE_RECURRENCE])
+    ForeignKey(Service::class, ["serviceId"], [ExpenseCol.SERVICE_ID])
 ])
 data class Expense(
-    @ColumnInfo(ExpenseCol.SERVICE) val service: Service,
+    @ColumnInfo(ExpenseCol.SERVICE_ID) val serviceId: Int,
     @ColumnInfo(ExpenseCol.AMOUNT) val amount: Float,
-    @ColumnInfo(ExpenseCol.DATE_RECURRENCE) val dateRecurrence: DateRecurrence,
-    @PrimaryKey(autoGenerate = true) val id: Int = 0
+    @Embedded val dateRecurrence: DateRecurrence,
+    @PrimaryKey(autoGenerate = true) val expenseId: Int = 0
+)
+
+data class ExpenseAndService(
+    @Embedded val expense: Expense,
+    @Relation(parentColumn = "expenseId", entityColumn = "serviceId")
+    val service: Service
 )
 
 // TODO: On insertion of date recursion, if that date already exist for that expense, split it and add the latest one on top
-@Entity(tableName = Table.DATE_RECURRENCE)
 data class DateRecurrence(
     @ColumnInfo(DateRecurrenceCol.FROM_DATE) val fromDate: LocalDate,
     @ColumnInfo(DateRecurrenceCol.TO_DATE) val toDate: LocalDate?,
     @ColumnInfo(DateRecurrenceCol.RECURRENCE) val recurrence: RecurrenceType,
-    @PrimaryKey(autoGenerate = true) val id: Int = 0
 )
 
 sealed class RecurrenceType(private val type: String, private val value: String?) {
@@ -62,13 +67,11 @@ sealed class RecurrenceType(private val type: String, private val value: String?
 object Table {
     const val EXPENSE = "Expense"
     const val SERVICE = "Service"
-    const val DATE_RECURRENCE = "DateRecurrence"
 }
 
 object ExpenseCol {
-    const val SERVICE = "service"
+    const val SERVICE_ID = "service_id"
     const val AMOUNT = "amount"
-    const val DATE_RECURRENCE = "date_recurrence"
 }
 
 object DateRecurrenceCol {

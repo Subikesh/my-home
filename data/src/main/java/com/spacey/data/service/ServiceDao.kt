@@ -10,17 +10,11 @@ import java.time.LocalDate
 
 @Dao
 abstract class ExpenseDao : BaseDao<Expense> {
-    @Query("SELECT Expense.* FROM Expense LEFT JOIN DateRecurrence ON Expense.date_recurrence = DateRecurrence.id WHERE :date BETWEEN from_date AND to_date")
-    protected abstract fun getExpenses(date: LocalDate): Flow<List<Expense>>
+    @Transaction
+    @Query("SELECT * FROM Expense WHERE :date BETWEEN from_date AND to_date")
+    protected abstract fun getExpenses(date: LocalDate): Flow<List<ExpenseAndService>>
 
     fun getDistinctExpenses(date: LocalDate) = getExpenses(date).distinctUntilChanged()
-
-    @Transaction
-    override suspend fun insertAll(data: List<Expense>) {
-        data.forEach { expense ->
-
-        }
-    }
 }
 
 @Dao
