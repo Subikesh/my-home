@@ -31,11 +31,10 @@ abstract class ExpenseDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insert(service: Service): Long
-
 }
 
 data class ExpenseEntity(
-    @ColumnInfo(ExpenseCol.SERVICE_ID) val serviceId: Long,
+    @ColumnInfo(ExpenseCol.SERVICE_ID) private val serviceId: Long,
     @Relation(parentColumn = ExpenseCol.SERVICE_ID, entityColumn = "id") val serviceType: Service,
     @ColumnInfo(ExpenseCol.AMOUNT) val amount: Float,
     @Embedded val dateRecurrence: DateRecurrence
