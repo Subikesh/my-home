@@ -156,7 +156,7 @@ enum class FormTab(val fieldList: List<Field>) {
     Daily(
         listOf(
             Field.Date("From date", LocalDate.now()),
-            Field.Picklist("Type", listOf("Counter", "Checklist", "Amount"), "Counter"),
+            Field.Picklist("Type", listOf("Counter", "Checklist", "Amount", "Checkbox"), "Counter"),
             Field.Amount("Amount", "0")
         )
     ),
