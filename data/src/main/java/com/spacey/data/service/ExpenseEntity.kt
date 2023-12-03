@@ -26,7 +26,7 @@ data class Service(
 ])
 data class Expense(
     @ColumnInfo(ExpenseCol.SERVICE_ID) val serviceId: Long,
-    @ColumnInfo(ExpenseCol.AMOUNT) val amount: Float,
+    @ColumnInfo(ExpenseCol.AMOUNT) val amount: Double,
     @Embedded val dateRecurrence: DateRecurrence,
     @PrimaryKey(autoGenerate = true) val id: Long = 0
 )

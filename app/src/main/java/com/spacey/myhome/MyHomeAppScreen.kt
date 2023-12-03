@@ -27,12 +27,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.spacey.myhome.navigation.MyHomeNavHost
 import com.spacey.myhome.navigation.NavItem
 import com.spacey.myhome.navigation.NavRoute
@@ -42,7 +40,7 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyHomeAppScreen(navController: NavHostController) {
+fun MyHomeAppScreen(navController: NavHostController, viewModel: MyHomeViewModel) {
     LaunchedEffect(key1 = "") {
         withContext(Dispatchers.IO) {
             navController.currentBackStackEntryFlow.collect {
@@ -112,23 +110,24 @@ fun MyHomeAppScreen(navController: NavHostController) {
                 }
             }
         }, floatingActionButton = {
-            HomeFAB(navController)
+            HomeFAB(navController, viewModel)
         }, contentWindowInsets = WindowInsets(16.dp, 8.dp, 16.dp, 8.dp)
     ) {
         Surface(Modifier.padding(it)) {
-            MyHomeNavHost(navController)
+            MyHomeNavHost(navController, viewModel)
         }
     }
 }
 
 @Composable
-private fun HomeFAB(navController: NavController) {
+private fun HomeFAB(navController: NavController, viewModel: MyHomeViewModel) {
     val currentRoute = navController.currentBackStackEntryAsState()
     val haptics = LocalHapticFeedback.current
     when (currentRoute.value?.destination?.route) {
         NavRoute.FORM.route -> {
             // TODO: Handle form submit
             LargeFloatingActionButton(onClick = {
+//                viewModel.addExpense()
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 navController.popBackStack()
             }) {
@@ -146,12 +145,5 @@ private fun HomeFAB(navController: NavController) {
         }
     }
 } 
-
-@Preview
-@Composable
-fun Preview() {
-    val nav = rememberNavController()
-    MyHomeAppScreen(navController = nav)
-}
 
 private fun getNotificationCount() = 0

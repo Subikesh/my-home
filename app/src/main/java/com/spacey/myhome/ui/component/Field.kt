@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -55,7 +56,7 @@ sealed class Field(open val label: String) {
         Field(label)
 
     class Date(override val label: String, var value: LocalDate) : Field(label)
-    class Amount(override val label: String, var value: String = "") : Field(label)
+    class Text(override val label: String, val keyboardType: KeyboardType, var value: String = "") : Field(label)
     class Counter(override val label: String, var value: Int = 0) : Field(label)
     class CheckBox(override val label: String, var value: Boolean = false) : Field(label)
     class WeekDayPicker(override val label: String, value: List<DayOfWeek>) : Field(label) {
@@ -64,7 +65,7 @@ sealed class Field(open val label: String) {
 
     override fun toString(): String {
         return when (this) {
-            is Amount -> "Field: $label is $value"
+            is Text -> "Field: $label is $value"
             is CheckBox -> "Field: $label is $value"
             is Counter -> "Field: $label is $value"
             is Date -> "Field: $label is $value"
@@ -180,18 +181,18 @@ fun Field.FormInputView(modifier: Modifier = Modifier) {
             }
         }
 
-        is Field.Amount -> {
+        is Field.Text -> {
             Card(modifier) {
                 var value: String by remember { mutableStateOf(this@FormInputView.value) }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Text(text = this@FormInputView.label, modifier = Modifier.weight(1f))
                     TextField(
                         value = value,
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        keyboardOptions = KeyboardOptions(keyboardType = this@FormInputView.keyboardType, capitalization = KeyboardCapitalization.Words),
                         onValueChange = {
                             value = it
                             this@FormInputView.value = it

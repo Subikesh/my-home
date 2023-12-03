@@ -4,15 +4,14 @@ import android.content.Context
 import com.spacey.data.base.AppDatabase
 import com.spacey.data.service.ExpenseRepository
 
-internal lateinit var appComponent: AppComponent
+object AppComponent {
 
-class AppComponent(context: Context) {
-    init {
-        appComponent = this
-    }
-
-    private val appDatabase = AppDatabase.getInstance(context)
+    private lateinit var appDatabase: AppDatabase
     private val expenseDao = appDatabase.expenseDao()
 
     val expenseRepository = ExpenseRepository(expenseDao)
+
+    fun initiate(appContext: Context) {
+        appDatabase = AppDatabase.getInstance(appContext)
+    }
 }

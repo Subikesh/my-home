@@ -1,6 +1,5 @@
 package com.spacey.myhome.navigation
 
-import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.InsertChart
@@ -14,13 +13,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.spacey.myhome.MyHomeViewModel
 import com.spacey.myhome.R
 import com.spacey.myhome.form.MyHomeFormScreen
 import com.spacey.myhome.home.HomeScreen
 import java.time.LocalDate
 
 @Composable
-fun MyHomeNavHost(navController: NavHostController) {
+fun MyHomeNavHost(navController: NavHostController, viewModel: MyHomeViewModel) {
     NavHost(navController, startDestination = NavRoute.HOME.route) {
         composable(NavRoute.HOME.route) {
             HomeScreen()
@@ -29,10 +29,7 @@ fun MyHomeNavHost(navController: NavHostController) {
             Text("Hello Android! We are in Reports screen")
         }
         composable(NavRoute.FORM.route) {
-            MyHomeFormScreen(currentDate = LocalDate.now()) {
-                Log.d("Form", "Final values: $it")
-                navController.popBackStack()
-            }
+            MyHomeFormScreen(currentDate = LocalDate.now())
         }
         composable(NavRoute.NOTIFICATION.route) {
             Text("Hello Android! We are in Notification screen")
