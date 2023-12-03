@@ -17,20 +17,20 @@ import com.spacey.myhome.MyHomeViewModel
 import com.spacey.myhome.R
 import com.spacey.myhome.form.MyHomeFormScreen
 import com.spacey.myhome.home.HomeScreen
-import java.time.LocalDate
 
 @Composable
 fun MyHomeNavHost(navController: NavHostController, viewModel: MyHomeViewModel) {
     NavHost(navController, startDestination = NavRoute.HOME.route) {
         composable(NavRoute.HOME.route) {
-            HomeScreen()
+            HomeScreen(viewModel)
         }
         composable(NavRoute.REPORT.route) {
             Text("Hello Android! We are in Reports screen")
         }
         composable(NavRoute.FORM.route) {
-            MyHomeFormScreen(currentDate = LocalDate.now()) { expense ->
+            MyHomeFormScreen(currentDate = viewModel.currentDate.value) { expense ->
                 viewModel.addExpense(expense)
+                navController.popBackStack()
             }
         }
         composable(NavRoute.NOTIFICATION.route) {

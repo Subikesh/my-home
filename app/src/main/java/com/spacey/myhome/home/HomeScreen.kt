@@ -14,12 +14,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.spacey.myhome.MyHomeViewModel
 import com.spacey.myhome.ui.component.CardView
 import com.spacey.myhome.ui.component.Field
 import com.spacey.myhome.utils.HomeDatePickerRow
@@ -28,7 +30,7 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: MyHomeViewModel) {
     var selectedDate: LocalDate by remember { mutableStateOf(LocalDate.now()) }
     val cardList = buildList {
         val services = listOf(
@@ -41,6 +43,8 @@ fun HomeScreen() {
             addAll(services)
         }
     }
+    viewModel.setDate(selectedDate)
+    val expenseList = viewModel.expenseList.collectAsState(initial = emptyList())
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         modifier = Modifier.fillMaxSize(),
@@ -69,7 +73,7 @@ fun HomeScreen() {
             }
         }
 
-        items(cardList) { field ->
+        items(expenseList.value) { field ->
             field.CardView()
         }
     }

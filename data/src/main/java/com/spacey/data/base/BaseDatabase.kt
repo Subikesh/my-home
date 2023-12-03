@@ -80,7 +80,7 @@ class Converters {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @TypeConverter
-    fun stringToDate(date: String?): LocalDate? = LocalDate.parse(date, DateTimeFormatter.ISO_DATE)
+    fun stringToDate(date: String?): LocalDate? = date?.let { LocalDate.parse(date, DateTimeFormatter.ISO_DATE) }
 
     @TypeConverter
     fun inputTypeToString(type: InputType?): String? = type?.name

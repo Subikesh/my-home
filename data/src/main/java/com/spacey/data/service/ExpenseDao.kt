@@ -14,8 +14,9 @@ import java.time.LocalDate
 
 @Dao
 abstract class ExpenseDao {
+    // TODO check if between is inclusive
     @Transaction
-    @Query("SELECT * FROM Expense WHERE to_date != NULL OR :date BETWEEN from_date AND to_date")
+    @Query("SELECT * FROM Expense WHERE (to_date IS NULL AND from_date <= :date) OR (to_date IS NOT NULL AND :date BETWEEN from_date AND to_date)")
     protected abstract fun getExpenses(date: LocalDate): Flow<List<ExpenseEntity>>
 
     fun getDistinctExpenses(date: LocalDate) = getExpenses(date).distinctUntilChanged()
