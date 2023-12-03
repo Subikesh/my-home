@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.spacey.myhome.ui.component.Field
 import com.spacey.myhome.ui.component.FormInputView
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Composable
@@ -51,6 +52,7 @@ sealed class FormTab(val name: String, val fieldList: List<Field>) {
         "Daily",
         listOf(
             Field.Date("From date", selectedDate),
+            Field.WeekDayPicker("Week Days", DayOfWeek.values().toList()),
             Field.Picklist("Type", listOf("Counter", "Amount", "Checkbox"), "Counter"),
             Field.Amount("Amount", "0")
         )
