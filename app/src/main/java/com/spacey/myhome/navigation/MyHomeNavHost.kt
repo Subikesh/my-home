@@ -29,7 +29,9 @@ fun MyHomeNavHost(navController: NavHostController, viewModel: MyHomeViewModel) 
             Text("Hello Android! We are in Reports screen")
         }
         composable(NavRoute.FORM.route) {
-            MyHomeFormScreen(currentDate = LocalDate.now())
+            MyHomeFormScreen(currentDate = LocalDate.now()) { expense ->
+                viewModel.addExpense(expense)
+            }
         }
         composable(NavRoute.NOTIFICATION.route) {
             Text("Hello Android! We are in Notification screen")

@@ -41,9 +41,11 @@ data class DateRecurrence(
 sealed class RecurrenceType(private val type: String, private val value: String?) {
     data object OnlyThisMonth : RecurrenceType(THIS_MONTH, null)
     data object OnlyToday : RecurrenceType(TODAY, null)
-    data class Weekly(val weekdays: List<DayOfWeek>) :
+    data object EveryDay : RecurrenceType(EVERY_DAY, null)
+    data object EveryMonth : RecurrenceType(EVERY_MONTH, null)
+    data class Weekly(val weekdays: Set<DayOfWeek>) :
         RecurrenceType(WEEKLY, weekdays.joinToString(DBConstant.SEPARATOR) { it.name })
-    data class Monthly(val months: List<Month>) :
+    data class Monthly(val months: Set<Month>) :
         RecurrenceType(MONTHLY, months.joinToString(DBConstant.SEPARATOR) { it.name })
 
     override fun toString(): String {
@@ -55,6 +57,8 @@ sealed class RecurrenceType(private val type: String, private val value: String?
         const val TODAY = "OnlyToday"
         const val WEEKLY = "Weekly"
         const val MONTHLY = "Monthly"
+        const val EVERY_DAY = "EveryDay"
+        const val EVERY_MONTH = "EveryMonth"
     }
 }
 

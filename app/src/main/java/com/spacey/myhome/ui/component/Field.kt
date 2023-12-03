@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -52,7 +51,7 @@ sealed class Field(open val label: String) {
     var isVisible = mutableStateOf(true)
 
     // TODO: Give enum class type as param instead of List<String>?
-    class Picklist(override val label: String, val options: List<String>, var value: String) :
+    class Picklist<T>(override val label: String, val options: List<T>, var selectedIndex: Int) :
         Field(label)
 
     class Date(override val label: String, var value: LocalDate) : Field(label)
@@ -69,7 +68,7 @@ sealed class Field(open val label: String) {
             is CheckBox -> "Field: $label is $value"
             is Counter -> "Field: $label is $value"
             is Date -> "Field: $label is $value"
-            is Picklist -> "Field: $label is $value"
+            is Picklist<*> -> "Field: $label is ${options[selectedIndex]}"
             is WeekDayPicker -> "Field: $label is $value"
         }
     }
@@ -203,20 +202,21 @@ fun Field.FormInputView(modifier: Modifier = Modifier) {
             }
         }
 
-        is Field.Picklist -> {
+        is Field.Picklist<*> -> {
             Card(modifier) {
                 Column {
                     Text(text = "Type", modifier = Modifier.padding(16.dp))
-                    var selectedValue: String by remember { mutableStateOf(this@FormInputView.value) }
+                    var selectedIndex: Int by remember { mutableIntStateOf(this@FormInputView.selectedIndex) }
+//                    var selectedValue: String by remember { mutableStateOf(this@FormInputView.value) }
                     LazyVerticalGrid(columns = GridCells.Fixed(3), contentPadding = PaddingValues(horizontal = 16.dp)) {
-                        items(this@FormInputView.options) {
+                        items(this@FormInputView.options.size) {
                             FilterChip(
-                                selected = selectedValue == it,
+                                selected = selectedIndex == it,
                                 onClick = {
-                                    selectedValue = it
-                                    this@FormInputView.value = it
+                                    selectedIndex = it
+                                    this@FormInputView.selectedIndex = it
                                 },
-                                label = { Text(it) },
+                                label = { Text(this@FormInputView.options[it].toString()) },
                                 modifier = Modifier.padding(8.dp),
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = MaterialTheme.colorScheme.primary,

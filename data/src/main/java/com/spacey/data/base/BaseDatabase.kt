@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
     entities = [
         Expense::class,
         Service::class
-    ], version = 0
+    ], version = 1
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -68,36 +68,39 @@ object DBConstant {
     const val SEPARATOR = "^_^"
 }
 
-enum class InputType {
-    AMOUNT, COUNTER, CHECKBOX
+enum class InputType(private val label: String) {
+    AMOUNT("Amount"), COUNTER("Counter"), CHECKBOX("Checkbox");
+
+    override fun toString(): String = label
 }
 
 class Converters {
     @TypeConverter
-    fun dateToString(date: LocalDate): String = date.toString()
+    fun dateToString(date: LocalDate?): String? = date?.toString()
 
     @RequiresApi(Build.VERSION_CODES.O)
     @TypeConverter
-    fun stringToDate(date: String): LocalDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE)
+    fun stringToDate(date: String?): LocalDate? = LocalDate.parse(date, DateTimeFormatter.ISO_DATE)
 
     @TypeConverter
-    fun inputTypeToString(type: InputType): String = type.name
+    fun inputTypeToString(type: InputType?): String? = type?.name
 
     @TypeConverter
-    fun stringToInputType(type: String): InputType = InputType.valueOf(type)
+    fun stringToInputType(type: String?): InputType? = type?.let { InputType.valueOf(it) }
 
     @TypeConverter
-    fun recurrenceToString(recurrence: RecurrenceType): String = recurrence.toString()
+    fun recurrenceToString(recurrence: RecurrenceType?): String? = recurrence?.toString()
 
     @TypeConverter
-    fun stringToRecurrence(recurrence: String): RecurrenceType {
+    fun stringToRecurrence(recurrence: String?): RecurrenceType? {
+        if (recurrence == null) return null
         val values = recurrence.split(DBConstant.SEPARATOR)
         val (type, value) = values.first() to values.subList(1, values.size)
         return when (type) {
             RecurrenceType.THIS_MONTH -> RecurrenceType.OnlyThisMonth
             RecurrenceType.TODAY -> RecurrenceType.OnlyToday
-            RecurrenceType.WEEKLY -> RecurrenceType.Weekly(value.map { DayOfWeek.valueOf(it) })
-            RecurrenceType.MONTHLY -> RecurrenceType.Monthly(value.map { Month.valueOf(it) })
+            RecurrenceType.WEEKLY -> RecurrenceType.Weekly(value.map { DayOfWeek.valueOf(it) }.toSet())
+            RecurrenceType.MONTHLY -> RecurrenceType.Monthly(value.map { Month.valueOf(it) }.toSet())
             else -> RecurrenceType.OnlyToday
         }
     }

@@ -22,7 +22,7 @@ abstract class ExpenseDao {
 
     @Transaction
     open fun insert(expense: ExpenseEntity): Long {
-        val serviceId = insert(expense.serviceType)
+        val serviceId = insert(expense.service)
         return insert(Expense(serviceId, expense.amount, expense.dateRecurrence))
     }
 
@@ -34,7 +34,7 @@ abstract class ExpenseDao {
 }
 
 data class ExpenseEntity(
-    @Relation(parentColumn = ExpenseCol.SERVICE_ID, entityColumn = "id") val serviceType: Service,
+    @Relation(parentColumn = ExpenseCol.SERVICE_ID, entityColumn = "id") val service: Service,
     @ColumnInfo(ExpenseCol.AMOUNT) val amount: Double,
     @Embedded val dateRecurrence: DateRecurrence,
     @ColumnInfo(ExpenseCol.SERVICE_ID) private val serviceId: Long = 0
