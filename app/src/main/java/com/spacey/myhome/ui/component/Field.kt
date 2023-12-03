@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -28,6 +31,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,6 +44,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.spacey.myhome.utils.HomeDatePickerRow
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 sealed class Field(open val label: String) {
@@ -53,6 +58,9 @@ sealed class Field(open val label: String) {
     class Amount(override val label: String, var value: String = "") : Field(label)
     class Counter(override val label: String, var value: Int = 0) : Field(label)
     class CheckBox(override val label: String, var value: Boolean = false) : Field(label)
+    class WeekDayPicker(override val label: String, value: List<DayOfWeek>) : Field(label) {
+        val value: MutableSet<DayOfWeek> = value.toMutableSet()
+    }
 
     override fun toString(): String {
         return when (this) {
@@ -61,6 +69,7 @@ sealed class Field(open val label: String) {
             is Counter -> "Field: $label is $value"
             is Date -> "Field: $label is $value"
             is Picklist -> "Field: $label is $value"
+            is WeekDayPicker -> "Field: $label is $value"
         }
     }
 }
@@ -134,7 +143,7 @@ fun Field.CardView(modifier: Modifier = Modifier) {
             }
         }
 
-        else -> {}
+        else -> throw IllegalArgumentException("Field $label not configured for card view")
     }
 }
 
@@ -219,6 +228,38 @@ fun Field.FormInputView(modifier: Modifier = Modifier) {
             }
         }
 
-        else -> TODO()
+        // TODO: Make the filterChip in this round?
+        is Field.WeekDayPicker -> {
+            Card(modifier) {
+                val datesSelected = remember { mutableStateListOf(*(value.toTypedArray())) }
+                Column {
+                    Text(text = this@FormInputView.label, modifier = Modifier.padding(16.dp))
+                    LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), content = {
+                        items(DayOfWeek.values().asList()) {
+                            FilterChip(
+                                selected = it in datesSelected,
+                                onClick = {
+                                    if (it in datesSelected) {
+                                        datesSelected.remove(it)
+                                        value.remove(it)
+                                    } else {
+                                        datesSelected.add(it)
+                                        value.add(it)
+                                    }
+                                },
+                                label = { Text(it.name.first().uppercase()) },
+                                shape = RoundedCornerShape(percent = 50),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                )
+                            )
+                        }
+                    })
+                }
+            }
+        }
+
+        else -> throw IllegalArgumentException("Field $label not configured for form input view")
     }
 }
