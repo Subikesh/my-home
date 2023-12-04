@@ -1,8 +1,6 @@
 package com.spacey.data.base
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -78,7 +76,6 @@ class Converters {
     @TypeConverter
     fun dateToString(date: LocalDate?): String? = date?.toString()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @TypeConverter
     fun stringToDate(date: String?): LocalDate? = date?.let { LocalDate.parse(date, DateTimeFormatter.ISO_DATE) }
 
@@ -89,7 +86,7 @@ class Converters {
     fun stringToInputType(type: String?): InputType? = type?.let { InputType.valueOf(it) }
 
     @TypeConverter
-    fun recurrenceToString(recurrence: RecurrenceType?): String? = recurrence?.toString()
+    fun recurrenceToString(recurrence: RecurrenceType?): String? = recurrence?.asString()
 
     @TypeConverter
     fun stringToRecurrence(recurrence: String?): RecurrenceType? {

@@ -48,10 +48,6 @@ sealed class RecurrenceType(private val type: String, private val value: String?
     data class Monthly(val months: Set<Month>) :
         RecurrenceType(MONTHLY, months.joinToString(DBConstant.SEPARATOR) { it.name })
 
-    override fun toString(): String {
-        return "$type${DBConstant.SEPARATOR}$value"
-    }
-
     companion object {
         const val THIS_MONTH = "OnlyThisMonth"
         const val TODAY = "OnlyToday"
@@ -60,6 +56,8 @@ sealed class RecurrenceType(private val type: String, private val value: String?
         const val EVERY_DAY = "EveryDay"
         const val EVERY_MONTH = "EveryMonth"
     }
+
+    fun asString(): String = "$type${DBConstant.SEPARATOR}$value"
 }
 
 object Table {

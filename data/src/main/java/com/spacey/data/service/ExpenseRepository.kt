@@ -8,7 +8,7 @@ import java.time.LocalDate
 class ExpenseRepository(private val expenseDao: ExpenseDao) {
     suspend fun getExpenses(date: LocalDate): Flow<List<ExpenseEntity>> {
         return ioScope {
-            expenseDao.getDistinctExpenses(date)
+            expenseDao.getDateExpenses(date)
         }
     }
 
