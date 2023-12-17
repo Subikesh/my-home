@@ -1,8 +1,9 @@
 package com.spacey.data.service
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Dao
-import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -17,17 +18,18 @@ import java.time.LocalDate
 abstract class ExpenseDao {
     // TODO check if between is inclusive
     @Transaction
-    @Query("SELECT * FROM Expense WHERE (to_date IS NULL AND from_date <= :date) OR (to_date IS NOT NULL AND :date BETWEEN from_date AND to_date)")
+    @Query("SELECT Expense.*, start_date, recurrence, updated_time FROM Expense JOIN DateRecurrence ON Expense.id = DateRecurrence.expense_id WHERE :date >= start_date")
     protected abstract fun getExpenses(date: LocalDate): Flow<List<ExpenseEntity>>
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getDateExpenses(date: LocalDate): Flow<List<ExpenseEntity>> {
         return getExpenses(date).map {
             it.filter { expense ->
-                when (val recurrence = expense.dateRecurrence.recurrence) {
+                when (val recurrence = expense.recurrence) {
                      RecurrenceType.EveryDay -> true
                      RecurrenceType.EveryMonth -> true
-                     RecurrenceType.OnlyThisMonth -> date.month == expense.dateRecurrence.fromDate.month
-                     RecurrenceType.OnlyToday -> date == expense.dateRecurrence.fromDate
+                     RecurrenceType.OnlyThisMonth -> date.month == expense.startDate.month
+                     RecurrenceType.OnlyToday -> date == expense.startDate
                      is RecurrenceType.Monthly -> date.month in recurrence.months
                      is RecurrenceType.Weekly -> date.dayOfWeek in recurrence.weekdays
                 }
@@ -38,19 +40,30 @@ abstract class ExpenseDao {
     @Transaction
     open fun insert(expense: ExpenseEntity): Long {
         val serviceId = insert(expense.service)
-        return insert(Expense(serviceId, expense.amount, expense.dateRecurrence))
+        val expenseId = insert(Expense(serviceId, expense.amount))
+        return insert(DateRecurrence(expense.startDate, expense.recurrence, expenseId, expense.updatedTime))
     }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insert(expense: Expense): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insert(service: Service): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insert(dateRecurrence: DateRecurrence): Long
+
+//    @Insert(onConflict = OnConflictStrategy.IGNORE)
+//    abstract fun update(expense: Expense): Long
+//    @Insert(onConflict = OnConflictStrategy.REPLACE)
+//    abstract fun update(service: Service): Long
 }
 
 data class ExpenseEntity(
     @Relation(parentColumn = ExpenseCol.SERVICE_ID, entityColumn = "id") val service: Service,
     @ColumnInfo(ExpenseCol.AMOUNT) val amount: Double,
-    @Embedded val dateRecurrence: DateRecurrence,
+    @ColumnInfo(DateRecurrenceCol.START_DATE) val startDate: LocalDate,
+    @ColumnInfo(DateRecurrenceCol.RECURRENCE) val recurrence: RecurrenceType,
+    @ColumnInfo(DateRecurrenceCol.UPDATED_TIME) val updatedTime: Long = System.currentTimeMillis(),
     @ColumnInfo(ExpenseCol.SERVICE_ID) private val serviceId: Long = 0
 )

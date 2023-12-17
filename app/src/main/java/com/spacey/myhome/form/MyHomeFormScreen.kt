@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.spacey.data.base.InputType
-import com.spacey.data.service.DateRecurrence
 import com.spacey.data.service.ExpenseEntity
 import com.spacey.data.service.RecurrenceType
 import com.spacey.data.service.Service
@@ -60,8 +59,8 @@ sealed class FormTab(val name: String, val fieldList: List<Field>) {
         listOf(
             Field.Text("Name", KeyboardType.Text),
             Field.Date("From date", selectedDate),
-            Field.WeekDayPicker("Week Days", DayOfWeek.values().toList()),
-            Field.Picklist("Type", InputType.values().toList(), InputType.values().indexOf(InputType.COUNTER)),
+            Field.WeekDayPicker("Week Days", DayOfWeek.entries),
+            Field.Picklist("Type", InputType.entries, InputType.entries.indexOf(InputType.COUNTER)),
             Field.Text("Amount", KeyboardType.Decimal, "0")
         )
     )
@@ -88,11 +87,8 @@ fun FormTab.getExpenseEntity(): ExpenseEntity {
                     amount = amount
                 ),
                 amount = amount,
-                dateRecurrence = DateRecurrence(
-                    fromDate = (fieldList[1] as Field.Date).value,
-                    toDate = null,
-                    recurrence = RecurrenceType.Weekly((fieldList[2] as Field.WeekDayPicker).value)
-                )
+                startDate = (fieldList[1] as Field.Date).value,
+                recurrence = RecurrenceType.Weekly((fieldList[2] as Field.WeekDayPicker).value)
             )
         }
         is FormTab.Monthly -> {
@@ -104,11 +100,8 @@ fun FormTab.getExpenseEntity(): ExpenseEntity {
                     amount = amount
                 ),
                 amount = amount,
-                dateRecurrence = DateRecurrence(
-                    fromDate = (fieldList[1] as Field.Date).value,
-                    toDate = null,
-                    recurrence = RecurrenceType.EveryMonth
-                )
+                startDate = (fieldList[1] as Field.Date).value,
+                recurrence = RecurrenceType.EveryMonth
             )
         }
     }

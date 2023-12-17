@@ -1,7 +1,6 @@
 package com.spacey.data.service
 
 import androidx.room.ColumnInfo
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -27,15 +26,19 @@ data class Service(
 data class Expense(
     @ColumnInfo(ExpenseCol.SERVICE_ID) val serviceId: Long,
     @ColumnInfo(ExpenseCol.AMOUNT) val amount: Double,
-    @Embedded val dateRecurrence: DateRecurrence,
     @PrimaryKey(autoGenerate = true) val id: Long = 0
 )
 
-// TODO: On insertion of date recursion, if that date already exist for that expense, split it and add the latest one on top
+@Entity(
+    tableName = Table.DATE_RECURRENCE,
+    foreignKeys = [ForeignKey(Expense::class, ["id"], [DateRecurrenceCol.EXPENSE_ID])]
+)
 data class DateRecurrence(
-    @ColumnInfo(DateRecurrenceCol.FROM_DATE) val fromDate: LocalDate,
-    @ColumnInfo(DateRecurrenceCol.TO_DATE) val toDate: LocalDate?,
+    @ColumnInfo(DateRecurrenceCol.START_DATE) val startDate: LocalDate,
     @ColumnInfo(DateRecurrenceCol.RECURRENCE) val recurrence: RecurrenceType,
+    @ColumnInfo(DateRecurrenceCol.EXPENSE_ID) val expenseId: Long = 0,
+    @ColumnInfo(DateRecurrenceCol.UPDATED_TIME) val updatedTime: Long = System.currentTimeMillis(),
+    @PrimaryKey(autoGenerate = true) val id: Long = 0
 )
 
 sealed class RecurrenceType(private val type: String, private val value: String?) {
@@ -63,6 +66,7 @@ sealed class RecurrenceType(private val type: String, private val value: String?
 object Table {
     const val EXPENSE = "Expense"
     const val SERVICE = "Service"
+    const val DATE_RECURRENCE = "DateRecurrence"
 }
 
 object ExpenseCol {
@@ -71,7 +75,8 @@ object ExpenseCol {
 }
 
 object DateRecurrenceCol {
-    const val FROM_DATE = "from_date"
-    const val TO_DATE = "to_date"
+    const val START_DATE = "start_date"
     const val RECURRENCE = "recurrence"
+    const val EXPENSE_ID = "expense_id"
+    const val UPDATED_TIME = "updated_time"
 }

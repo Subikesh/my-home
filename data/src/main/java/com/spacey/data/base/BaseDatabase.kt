@@ -1,11 +1,14 @@
 package com.spacey.data.base
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import com.spacey.data.service.DateRecurrence
 import com.spacey.data.service.Expense
 import com.spacey.data.service.ExpenseDao
 import com.spacey.data.service.RecurrenceType
@@ -20,7 +23,8 @@ import java.time.format.DateTimeFormatter
 @Database(
     entities = [
         Expense::class,
-        Service::class
+        Service::class,
+        DateRecurrence::class
     ], version = 1
 )
 @TypeConverters(Converters::class)
@@ -76,6 +80,7 @@ class Converters {
     @TypeConverter
     fun dateToString(date: LocalDate?): String? = date?.toString()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @TypeConverter
     fun stringToDate(date: String?): LocalDate? = date?.let { LocalDate.parse(date, DateTimeFormatter.ISO_DATE) }
 
