@@ -18,4 +18,11 @@ class ExpenseRepository(private val expenseDao: ExpenseDao) {
             Log.d("Db", "Inserted successfully")
         }
     }
+
+    suspend fun deleteExpense(expenseEntity: ExpenseEntity) {
+        return ioScope {
+            expenseDao.delete(expenseEntity.id)
+            Log.d("Db", "Deleted successfully")
+        }
+    }
 }

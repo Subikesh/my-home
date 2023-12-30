@@ -1,7 +1,5 @@
 package com.spacey.data.service
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Insert
@@ -18,10 +16,11 @@ import java.time.LocalDate
 abstract class ExpenseDao {
     // TODO check if between is inclusive
     @Transaction
-    @Query("SELECT Expense.*, start_date, recurrence, updated_time FROM Expense JOIN DateRecurrence ON Expense.id = DateRecurrence.expense_id WHERE :date >= start_date")
+    @Query("SELECT Expense.*, start_date, recurrence, updated_time FROM Expense JOIN DateRecurrence ON Expense.id = DateRecurrence.expense_id WHERE" +
+            " (recurrence LIKE '${RecurrenceType.TODAY}' AND :date = start_date) " +
+            " OR :date >= start_date")
     protected abstract fun getExpenses(date: LocalDate): Flow<List<ExpenseEntity>>
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun getDateExpenses(date: LocalDate): Flow<List<ExpenseEntity>> {
         return getExpenses(date).map {
             it.filter { expense ->
@@ -40,7 +39,9 @@ abstract class ExpenseDao {
     @Transaction
     open fun insert(expense: ExpenseEntity): Long {
         val serviceId = insert(expense.service)
-        val expenseId = insert(Expense(serviceId, expense.amount))
+        val expenseId = if (expense.id == -1L) {
+             insert(Expense(serviceId, expense.amount))
+        } else expense.id
         return insert(DateRecurrence(expense.startDate, expense.recurrence, expenseId, expense.updatedTime))
     }
 
@@ -52,6 +53,9 @@ abstract class ExpenseDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insert(dateRecurrence: DateRecurrence): Long
+
+    @Query("DELETE FROM Expense WHERE id = :id")
+    abstract fun delete(id: Long)
 
 //    @Insert(onConflict = OnConflictStrategy.IGNORE)
 //    abstract fun update(expense: Expense): Long
@@ -65,5 +69,6 @@ data class ExpenseEntity(
     @ColumnInfo(DateRecurrenceCol.START_DATE) val startDate: LocalDate,
     @ColumnInfo(DateRecurrenceCol.RECURRENCE) val recurrence: RecurrenceType,
     @ColumnInfo(DateRecurrenceCol.UPDATED_TIME) val updatedTime: Long = System.currentTimeMillis(),
-    @ColumnInfo(ExpenseCol.SERVICE_ID) private val serviceId: Long = 0
+    @ColumnInfo(ExpenseCol.SERVICE_ID) private val serviceId: Long = 0,
+    val id: Long = -1L
 )

@@ -11,22 +11,22 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
 
-// TODO: Setup one to one or other relations
+@Entity(
+    tableName = Table.EXPENSE,
+    foreignKeys = [ForeignKey(Service::class, ["id"], [ExpenseCol.SERVICE_ID])]
+)
+data class Expense(
+    @ColumnInfo(ExpenseCol.SERVICE_ID) val serviceId: Long,
+    @ColumnInfo(ExpenseCol.AMOUNT) val amount: Double,
+    @PrimaryKey(autoGenerate = true) val id: Long = -1L
+)
+
 @Entity(tableName = Table.SERVICE)
 data class Service(
     @ColumnInfo(ServiceCol.NAME) val name: String,
     @ColumnInfo(ServiceCol.TYPE) val type: InputType,
     @ColumnInfo(ServiceCol.AMOUNT) val amount: Double,
-    @PrimaryKey(autoGenerate = true) val id: Long = 0
-)
-
-@Entity(tableName = Table.EXPENSE, foreignKeys = [
-    ForeignKey(Service::class, ["id"], [ExpenseCol.SERVICE_ID])
-])
-data class Expense(
-    @ColumnInfo(ExpenseCol.SERVICE_ID) val serviceId: Long,
-    @ColumnInfo(ExpenseCol.AMOUNT) val amount: Double,
-    @PrimaryKey(autoGenerate = true) val id: Long = 0
+    @PrimaryKey(autoGenerate = true) val id: Long = -1L
 )
 
 @Entity(
@@ -36,9 +36,9 @@ data class Expense(
 data class DateRecurrence(
     @ColumnInfo(DateRecurrenceCol.START_DATE) val startDate: LocalDate,
     @ColumnInfo(DateRecurrenceCol.RECURRENCE) val recurrence: RecurrenceType,
-    @ColumnInfo(DateRecurrenceCol.EXPENSE_ID) val expenseId: Long = 0,
+    @ColumnInfo(DateRecurrenceCol.EXPENSE_ID) val expenseId: Long = -1L,
     @ColumnInfo(DateRecurrenceCol.UPDATED_TIME) val updatedTime: Long = System.currentTimeMillis(),
-    @PrimaryKey(autoGenerate = true) val id: Long = 0
+    @PrimaryKey(autoGenerate = true) val id: Long = -1L
 )
 
 sealed class RecurrenceType(private val type: String, private val value: String?) {
