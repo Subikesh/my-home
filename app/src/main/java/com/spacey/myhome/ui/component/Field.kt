@@ -47,20 +47,18 @@ import com.spacey.myhome.utils.HomeDatePickerRow
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-sealed class Field(open val label: String) {
+sealed class Field<T>(open val label: String, var value: T) {
     var isVisible = mutableStateOf(true)
 
     // TODO: Give enum class type as param instead of List<String>?
-    class Picklist<T>(override val label: String, val options: List<T>, var selectedIndex: Int) :
-        Field(label)
+    class Picklist<R>(override val label: String, val options: List<R>, var selectedIndex: Int) :
+        Field<R>(label, options[selectedIndex])
 
-    class Date(override val label: String, var value: LocalDate) : Field(label)
-    class Text(override val label: String, val keyboardType: KeyboardType, var value: String = "") : Field(label)
-    class Counter(override val label: String, var value: Int = 0) : Field(label)
-    class CheckBox(override val label: String, var value: Boolean = false) : Field(label)
-    class WeekDayPicker(override val label: String, value: List<DayOfWeek>) : Field(label) {
-        val value: MutableSet<DayOfWeek> = value.toMutableSet()
-    }
+    class Date(override val label: String, value: LocalDate) : Field<LocalDate>(label, value)
+    class Text(override val label: String, val keyboardType: KeyboardType, value: String = "") : Field<String>(label, value)
+    class Counter(override val label: String, value: Int = 0) : Field<Int>(label, value)
+    class CheckBox(override val label: String, value: Boolean = false) : Field<Boolean>(label, value)
+    class WeekDayPicker(override val label: String, value: List<DayOfWeek>) : Field<MutableList<DayOfWeek>>(label, value.toMutableList())
 
     override fun toString(): String {
         return when (this) {
@@ -76,7 +74,7 @@ sealed class Field(open val label: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Field.CardView(modifier: Modifier = Modifier) {
+fun Field<*>.CardView(modifier: Modifier = Modifier) {
     if (!isVisible.value) return
 
     val haptic = LocalHapticFeedback.current
@@ -149,7 +147,7 @@ fun Field.CardView(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Field.FormInputView(modifier: Modifier = Modifier) {
+fun Field<*>.FormInputView(modifier: Modifier = Modifier) {
     when (this) {
         is Field.Date -> {
             var selectedDate: LocalDate by remember { mutableStateOf(this@FormInputView.value) }
@@ -236,7 +234,7 @@ fun Field.FormInputView(modifier: Modifier = Modifier) {
                 Column {
                     Text(text = this@FormInputView.label, modifier = Modifier.padding(16.dp))
                     LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), content = {
-                        items(DayOfWeek.values().asList()) {
+                        items(DayOfWeek.entries) {
                             FilterChip(
                                 selected = it in datesSelected,
                                 onClick = {

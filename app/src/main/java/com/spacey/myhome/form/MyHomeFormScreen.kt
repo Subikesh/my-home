@@ -53,7 +53,7 @@ fun MyHomeFormScreen(currentDate: LocalDate, onSubmit: (ExpenseEntity) -> Unit) 
     }
 }
 
-sealed class FormTab(val name: String, val fieldList: List<Field>) {
+sealed class FormTab(val name: String, val fieldList: List<Field<*>>) {
     class Daily(selectedDate: LocalDate) : FormTab(
         "Daily",
         listOf(
@@ -88,7 +88,7 @@ fun FormTab.getExpenseEntity(): ExpenseEntity {
                 ),
                 amount = amount,
                 startDate = (fieldList[1] as Field.Date).value,
-                recurrence = RecurrenceType.Weekly((fieldList[2] as Field.WeekDayPicker).value)
+                recurrence = RecurrenceType.Weekly((fieldList[2] as Field.WeekDayPicker).value.toSet())
             )
         }
         is FormTab.Monthly -> {

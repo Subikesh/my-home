@@ -19,8 +19,8 @@ class MyHomeViewModel : ViewModel() {
 
     private val repository: ExpenseRepository = AppComponent.expenseRepository
 
-    private val _expenseList: MutableStateFlow<List<Field>> = MutableStateFlow(emptyList())
-    val expenseList: StateFlow<List<Field>> = _expenseList
+    private val _expenseList: MutableStateFlow<List<Field<*>>> = MutableStateFlow(emptyList())
+    val expenseList: StateFlow<List<Field<*>>> = _expenseList
 
     val currentDate: MutableState<LocalDate> = mutableStateOf(LocalDate.now())
 
@@ -35,7 +35,7 @@ class MyHomeViewModel : ViewModel() {
                     when (service.type) {
                         // TODO: review amount/text inputType
                         InputType.AMOUNT -> Field.Text(service.name, KeyboardType.Text)
-                        InputType.COUNTER -> Field.Counter(service.name, 2)
+                        InputType.COUNTER -> Field.Counter(service.name, count)
                         InputType.CHECKBOX -> Field.CheckBox(service.name, false)
                     }
                 }

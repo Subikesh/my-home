@@ -28,6 +28,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.spacey.myhome.navigation.MyHomeNavHost
 import com.spacey.myhome.navigation.NavItem
 import com.spacey.myhome.navigation.NavRoute
@@ -107,11 +108,14 @@ fun MyHomeAppScreen(navController: NavHostController, viewModel: MyHomeViewModel
                 }
             }
         }, floatingActionButton = {
-            LargeFloatingActionButton(onClick = {
-                navController.navigateTo(NavRoute.FORM)
-                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-            }) {
-                Icon(Icons.Default.Add, contentDescription = "Form")
+            val navBackStackEntry = navController.currentBackStackEntryAsState()
+            if (navBackStackEntry.value?.destination?.route != NavRoute.FORM.route) {
+                LargeFloatingActionButton(onClick = {
+                    navController.navigateTo(NavRoute.FORM)
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                }) {
+                    Icon(Icons.Default.Add, contentDescription = "Form")
+                }
             }
         }, contentWindowInsets = WindowInsets(16.dp, 8.dp, 16.dp, 8.dp)
     ) {

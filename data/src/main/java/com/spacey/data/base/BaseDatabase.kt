@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
         Expense::class,
         Service::class,
         DateRecurrence::class
-    ], version = 1
+    ], version = 2
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
