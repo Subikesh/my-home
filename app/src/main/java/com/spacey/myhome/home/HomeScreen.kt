@@ -18,8 +18,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.spacey.myhome.ui.component.AddServiceFormFab
 import com.spacey.myhome.ui.component.CardView
 import com.spacey.myhome.ui.component.Field
 import com.spacey.myhome.utils.HomeDatePickerRow
@@ -36,18 +36,26 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun HomeScreen(
+fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
+    val uiState by viewModel.uiState
+    UI(
+        selectedDate = uiState.selectedDate,
+        expenseList = uiState.expenseList,
+        fab = { AddServiceFormFab(navController) }) {
+        viewModel.onEvent(HomeEvent.SetDate(it))
+    }
+}
+
+@Composable
+fun UI(
     selectedDate: LocalDate,
-    expenseList: State<List<Field<*>>>,
+    expenseList: List<Field<*>>,
     fab: @Composable () -> Unit,
     onDateChanged: (LocalDate) -> Unit
 ) {
     var date: LocalDate by remember { mutableStateOf(selectedDate) }
 
-
-    LaunchedEffect(date) {
-        onDateChanged(date)
-    }
+    onDateChanged(date)
     Scaffold(modifier = Modifier.fillMaxSize(), floatingActionButton = { fab() }) {
         LazyVerticalStaggeredGrid(
             columns = StaggeredGridCells.Fixed(2),
@@ -60,6 +68,7 @@ fun HomeScreen(
                 HomeDatePickerRow(initialDate = date,
                     onDateChanged = { newDate ->
                         date = newDate
+                        onDateChanged(newDate)
                     }) {
                     Text(
                         "${date.dayOfMonth} ${
@@ -79,7 +88,7 @@ fun HomeScreen(
                 }
             }
 
-            items(expenseList.value) { field ->
+            items(expenseList) { field ->
                 field.CardView()
             }
         }
