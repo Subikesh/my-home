@@ -25,28 +25,32 @@ class MyHomeViewModel : ViewModel() {
     val currentDate: MutableState<LocalDate> = mutableStateOf(LocalDate.now())
 
     fun setDate(date: LocalDate) {
+        currentDate.value = date
         viewModelScope.launch {
-            currentDate.value = date
-            repository.getExpenses(date).collect {
-                val field = it.map { expense ->
-                    val service = expense.service
-                    // TODO: Calculate this amount count
-                    val count = if (service.amount.toInt() == 0) 0 else (expense.amount / service.amount).toInt()
-                    when (service.type) {
-                        // TODO: review amount/text inputType
-                        InputType.AMOUNT -> Field.Text(service.name, KeyboardType.Text)
-                        InputType.COUNTER -> Field.Counter(service.name, count)
-                        InputType.CHECKBOX -> Field.CheckBox(service.name, false)
-                    }
-                }
-                _expenseList.value = field
-            }
+            refreshExpenses(date)
         }
     }
 
     fun addExpense(expense: ExpenseEntity) {
         viewModelScope.launch {
             repository.insertExpense(expense)
+        }
+    }
+
+    private suspend fun refreshExpenses(date: LocalDate) {
+        repository.getExpenses(date).collect {
+            val field = it.map { expense ->
+                val service = expense.service
+                // TODO: Calculate this amount count
+                val count = if (service.amount.toInt() == 0) 0 else (expense.amount / service.amount).toInt()
+                when (service.type) {
+                    // TODO: review amount/text inputType
+                    InputType.AMOUNT -> Field.Text(service.name, KeyboardType.Text)
+                    InputType.COUNTER -> Field.Counter(service.name, count)
+                    InputType.CHECKBOX -> Field.CheckBox(service.name, false)
+                }
+            }
+            _expenseList.value = field
         }
     }
 }

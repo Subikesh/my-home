@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
@@ -17,12 +18,19 @@ import com.spacey.myhome.MyHomeViewModel
 import com.spacey.myhome.R
 import com.spacey.myhome.form.MyHomeFormScreen
 import com.spacey.myhome.home.HomeScreen
+import com.spacey.myhome.ui.component.AddServiceFormFab
+import java.time.LocalDate
 
 @Composable
 fun MyHomeNavHost(navController: NavHostController, viewModel: MyHomeViewModel) {
     NavHost(navController, startDestination = NavRoute.HOME.route) {
         composable(NavRoute.HOME.route) {
-            HomeScreen(viewModel)
+            HomeScreen(
+                selectedDate = LocalDate.now(),
+                viewModel.expenseList.collectAsState(emptyList()),
+                fab = { AddServiceFormFab(navController) }) {
+                viewModel.setDate(it)
+            }
         }
         composable(NavRoute.REPORT.route) {
             Text("Hello Android! We are in Reports screen")
@@ -30,6 +38,7 @@ fun MyHomeNavHost(navController: NavHostController, viewModel: MyHomeViewModel) 
         composable(NavRoute.FORM.route) {
             MyHomeFormScreen(currentDate = viewModel.currentDate.value) { expense ->
                 viewModel.addExpense(expense)
+                viewModel.setDate(viewModel.currentDate.value)
                 navController.popBackStack()
             }
         }

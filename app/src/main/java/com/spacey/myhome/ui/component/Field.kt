@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.spacey.myhome.utils.HomeDatePickerRow
 import java.time.DayOfWeek
@@ -145,7 +144,7 @@ fun Field<*>.CardView(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 @Composable
 fun Field<*>.FormInputView(modifier: Modifier = Modifier) {
     when (this) {
@@ -201,12 +200,13 @@ fun Field<*>.FormInputView(modifier: Modifier = Modifier) {
         }
 
         is Field.Picklist<*> -> {
-            Card(modifier) {
+            Card(modifier.fillMaxWidth()) {
                 Column {
                     Text(text = "Type", modifier = Modifier.padding(16.dp))
                     var selectedIndex: Int by remember { mutableIntStateOf(this@FormInputView.selectedIndex) }
-//                    var selectedValue: String by remember { mutableStateOf(this@FormInputView.value) }
-                    LazyVerticalGrid(columns = GridCells.Fixed(3), contentPadding = PaddingValues(horizontal = 16.dp)) {
+
+                    LazyRow(contentPadding = PaddingValues(horizontal = 16.dp)) {
+//                    LazyVerticalGrid(columns = GridCells.Fixed(3), contentPadding = PaddingValues(horizontal = 16.dp)) {
                         items(this@FormInputView.options.size) {
                             FilterChip(
                                 selected = selectedIndex == it,
@@ -227,9 +227,9 @@ fun Field<*>.FormInputView(modifier: Modifier = Modifier) {
             }
         }
 
-        // TODO: Make the filterChip in this round?
+        // TODO: Make the filterChip round?
         is Field.WeekDayPicker -> {
-            Card(modifier) {
+            Card(modifier.fillMaxWidth()) {
                 val datesSelected = remember { mutableStateListOf(*(value.toTypedArray())) }
                 Column {
                     Text(text = this@FormInputView.label, modifier = Modifier.padding(16.dp))
@@ -261,4 +261,10 @@ fun Field<*>.FormInputView(modifier: Modifier = Modifier) {
 
         else -> throw IllegalArgumentException("Field $label not configured for form input view")
     }
+}
+
+@Preview
+@Composable
+fun Preview() {
+    Field.Picklist("Sample", listOf("Hi", "Hello", "there"), 0).FormInputView()
 }

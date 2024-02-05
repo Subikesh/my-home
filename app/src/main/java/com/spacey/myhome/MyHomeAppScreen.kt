@@ -3,14 +3,10 @@ package com.spacey.myhome
 import android.util.Log
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -28,10 +24,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.spacey.myhome.navigation.MyHomeNavHost
 import com.spacey.myhome.navigation.NavItem
-import com.spacey.myhome.navigation.NavRoute
 import com.spacey.myhome.navigation.navigateTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -107,17 +101,19 @@ fun MyHomeAppScreen(navController: NavHostController, viewModel: MyHomeViewModel
                     )
                 }
             }
-        }, floatingActionButton = {
-            val navBackStackEntry = navController.currentBackStackEntryAsState()
-            if (navBackStackEntry.value?.destination?.route != NavRoute.FORM.route) {
-                LargeFloatingActionButton(onClick = {
-                    navController.navigateTo(NavRoute.FORM)
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                }) {
-                    Icon(Icons.Default.Add, contentDescription = "Form")
-                }
-            }
-        }, contentWindowInsets = WindowInsets(16.dp, 8.dp, 16.dp, 8.dp)
+//        }, floatingActionButton = {
+//            AddServiceForm(navController = navController)
+//            val navBackStackEntry = navController.currentBackStackEntryAsState()
+//            if (navBackStackEntry.value?.destination?.route != NavRoute.FORM.route) {
+//                LargeFloatingActionButton(onClick = {
+//                    navController.navigateTo(NavRoute.FORM)
+//                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+//                }) {
+//                    Icon(Icons.Default.Add, contentDescription = "Form")
+//                }
+//            }
+        },
+        contentWindowInsets = WindowInsets(16.dp, 8.dp, 16.dp, 8.dp)
     ) {
         Surface(Modifier.padding(it)) {
             MyHomeNavHost(navController, viewModel)
