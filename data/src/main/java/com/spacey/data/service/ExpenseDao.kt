@@ -37,7 +37,7 @@ abstract class ExpenseDao {
     }
 
     @Transaction
-    open fun insert(expense: ExpenseEntity): Long {
+    open suspend fun insert(expense: ExpenseEntity): Long {
         val serviceId = insert(expense.service)
         val expenseId = if (expense.id == -1L) {
              insert(Expense(serviceId, expense.amount))
@@ -46,16 +46,16 @@ abstract class ExpenseDao {
     }
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun insert(expense: Expense): Long
+    abstract suspend fun insert(expense: Expense): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun insert(service: Service): Long
+    abstract suspend fun insert(service: Service): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insert(dateRecurrence: DateRecurrence): Long
+    abstract suspend fun insert(dateRecurrence: DateRecurrence): Long
 
     @Query("DELETE FROM Expense WHERE id = :id")
-    abstract fun delete(id: Long)
+    abstract suspend fun delete(id: Long)
 
 //    @Insert(onConflict = OnConflictStrategy.IGNORE)
 //    abstract fun update(expense: Expense): Long

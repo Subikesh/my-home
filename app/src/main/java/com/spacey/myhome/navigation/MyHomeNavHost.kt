@@ -38,8 +38,8 @@ fun MyHomeNavHost(navController: NavHostController, viewModel: MyHomeViewModel) 
         composable(NavRoute.FORM.route) {
             MyHomeFormScreen(currentDate = viewModel.currentDate.value) { expense ->
                 viewModel.addExpense(expense)
-                viewModel.setDate(viewModel.currentDate.value)
                 navController.popBackStack()
+                viewModel.setDate(viewModel.currentDate.value)
             }
         }
         composable(NavRoute.NOTIFICATION.route) {

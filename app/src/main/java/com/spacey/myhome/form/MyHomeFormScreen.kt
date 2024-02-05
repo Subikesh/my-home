@@ -56,17 +56,11 @@ fun MyHomeFormScreen(currentDate: LocalDate, onSubmit: (ExpenseEntity) -> Unit) 
             items(selectedTab.fieldList) { field ->
                 field.FormInputView(Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp))
             }
-//            Button(onClick = {
-//                onSubmit(selectedTab.getExpenseEntity())
-//            }, modifier = outerPadding) {
-//                Text(text = "Submit")
-//            }
         }
     }
 }
 
 sealed class FormTab(val name: String, val fieldList: List<Field<*>>) {
-    @OptIn(ExperimentalStdlibApi::class)
     class Daily(selectedDate: LocalDate) : FormTab(
         "Daily",
         listOf(

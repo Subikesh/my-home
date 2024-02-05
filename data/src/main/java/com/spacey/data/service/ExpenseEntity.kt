@@ -18,7 +18,7 @@ import java.time.Month
 data class Expense(
     @ColumnInfo(ExpenseCol.SERVICE_ID) val serviceId: Long,
     @ColumnInfo(ExpenseCol.AMOUNT) val amount: Double,
-    @PrimaryKey(autoGenerate = true) val id: Long = -1L
+    @PrimaryKey(autoGenerate = true) val id: Long = 0
 )
 
 @Entity(tableName = Table.SERVICE)
@@ -26,7 +26,7 @@ data class Service(
     @ColumnInfo(ServiceCol.NAME) val name: String,
     @ColumnInfo(ServiceCol.TYPE) val type: InputType,
     @ColumnInfo(ServiceCol.AMOUNT) val amount: Double,
-    @PrimaryKey(autoGenerate = true) val id: Long = -1L
+    @PrimaryKey(autoGenerate = true) val id: Long = 0
 )
 
 @Entity(
@@ -38,7 +38,7 @@ data class DateRecurrence(
     @ColumnInfo(DateRecurrenceCol.RECURRENCE) val recurrence: RecurrenceType,
     @ColumnInfo(DateRecurrenceCol.EXPENSE_ID) val expenseId: Long = -1L,
     @ColumnInfo(DateRecurrenceCol.UPDATED_TIME) val updatedTime: Long = System.currentTimeMillis(),
-    @PrimaryKey(autoGenerate = true) val id: Long = -1L
+    @PrimaryKey(autoGenerate = true) val id: Long = 0
 )
 
 sealed class RecurrenceType(private val type: String, private val value: String?) {

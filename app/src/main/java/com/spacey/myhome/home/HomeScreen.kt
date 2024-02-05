@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +44,10 @@ fun HomeScreen(
 ) {
     var date: LocalDate by remember { mutableStateOf(selectedDate) }
 
+
+    LaunchedEffect(date) {
+        onDateChanged(date)
+    }
     Scaffold(modifier = Modifier.fillMaxSize(), floatingActionButton = { fab() }) {
         LazyVerticalStaggeredGrid(
             columns = StaggeredGridCells.Fixed(2),
@@ -55,7 +60,6 @@ fun HomeScreen(
                 HomeDatePickerRow(initialDate = date,
                     onDateChanged = { newDate ->
                         date = newDate
-                        onDateChanged(newDate)
                     }) {
                     Text(
                         "${date.dayOfMonth} ${
