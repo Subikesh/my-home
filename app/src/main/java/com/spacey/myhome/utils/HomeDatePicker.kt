@@ -23,7 +23,12 @@ import java.time.ZoneOffset
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeDatePickerRow(modifier: Modifier = Modifier, initialDate: LocalDate = LocalDate.now(), onDateChanged: (LocalDate) -> Unit, content: @Composable RowScope.() -> Unit) {
+fun HomeDatePickerRow(
+    modifier: Modifier = Modifier,
+    initialDate: LocalDate = LocalDate.now(),
+    onDateChanged: (LocalDate) -> Unit,
+    content: @Composable RowScope.() -> Unit
+) {
     val haptics = LocalHapticFeedback.current
     var showDateDialog by remember { mutableStateOf(false) }
     Row(
@@ -49,7 +54,8 @@ fun HomeDatePickerRow(modifier: Modifier = Modifier, initialDate: LocalDate = Lo
                 }) {
                     Text("Confirm")
                 }
-            }) {
+            }
+        ) {
             DatePicker(state = dateState)
         }
     }

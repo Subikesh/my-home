@@ -1,5 +1,6 @@
 package com.spacey.myhome.utils
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
@@ -27,7 +28,7 @@ import com.spacey.myhome.navigation.navigateTo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyHomeScaffold(navController: NavController, fab: @Composable (NavController) -> Unit, content: @Composable () -> Unit) {
+fun MyHomeScaffold(navController: NavController, fab: @Composable (NavController) -> Unit, content: @Composable (PaddingValues) -> Unit) {
     val navList = listOf(
         NavItem.Home,
         NavItem.Report,
@@ -94,7 +95,7 @@ fun MyHomeScaffold(navController: NavController, fab: @Composable (NavController
         contentWindowInsets = WindowInsets(16.dp, 8.dp, 16.dp, 8.dp)
     ) {
         Surface(Modifier.padding(it)) {
-            content()
+            content(it)
         }
     }
 }

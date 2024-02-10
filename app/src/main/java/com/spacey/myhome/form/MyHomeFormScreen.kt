@@ -30,7 +30,6 @@ import com.spacey.myhome.utils.MyHomeScaffold
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-// TODO: set onSubmit lambda here for submit
 @Composable
 fun MyHomeFormScreen(date: LocalDate, viewModel: MyHomeFormViewModel, navController: NavController) {
     UI(currentDate = date, navController = navController) { expense ->
