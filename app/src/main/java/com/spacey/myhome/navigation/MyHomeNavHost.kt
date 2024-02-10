@@ -13,31 +13,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.spacey.myhome.MyHomeViewModel
 import com.spacey.myhome.R
 import com.spacey.myhome.form.MyHomeFormScreen
+import com.spacey.myhome.form.MyHomeFormViewModel
 import com.spacey.myhome.home.HomeScreen
 import com.spacey.myhome.home.HomeViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun MyHomeNavHost(navController: NavHostController, viewModel: MyHomeViewModel) {
-    NavHost(navController, startDestination = NavRoute.HOME.route) {
-        composable(NavRoute.HOME.route) {
+fun MyHomeNavHost(navController: NavHostController) {
+    NavHost(navController, startDestination = NavRoute.Home.route) {
+        composable(NavRoute.Home.route) {
             HomeScreen(HomeViewModel(), navController)
         }
-        composable(NavRoute.REPORT.route) {
+        // TODO Make the route static
+        composable(NavRoute.Form(LocalDate.now()).route) {
+            val date = it.arguments?.getString("date")
+                ?.let { date -> LocalDate.parse(date, DateTimeFormatter.ISO_DATE) }
+                ?: LocalDate.now()
+            MyHomeFormScreen(date, MyHomeFormViewModel(), navController)
+        }
+        composable(NavRoute.Report.route) {
             Text("Hello Android! We are in Reports screen")
         }
-        composable(NavRoute.FORM.route) {
-            MyHomeFormScreen(currentDate = viewModel.currentDate.value) { expense ->
-                viewModel.addExpense(expense)
-                navController.popBackStack()
-            }
-        }
-        composable(NavRoute.NOTIFICATION.route) {
+        composable(NavRoute.Notification.route) {
             Text("Hello Android! We are in Notification screen")
         }
-        composable(NavRoute.SETTINGS.route) {
+        composable(NavRoute.Settings.route) {
             Text("Hello Android! We are in Settings screen")
         }
     }
@@ -45,14 +48,18 @@ fun MyHomeNavHost(navController: NavHostController, viewModel: MyHomeViewModel) 
 
 
 enum class NavItem(val label: String, private val icon: ImageVector, val route: NavRoute) {
-    Home("Home", Icons.Default.Home, NavRoute.HOME),
-    Report("Report", Icons.Default.InsertChart, NavRoute.REPORT),
-    Notification("Notification", Icons.Default.Notifications, NavRoute.NOTIFICATION),
-    Settings("Settings", Icons.Default.Settings, NavRoute.SETTINGS);
+    Home("Home", Icons.Default.Home, NavRoute.Home),
+    Report("Report", Icons.Default.InsertChart, NavRoute.Report),
+    Notification("Notification", Icons.Default.Notifications, NavRoute.Notification),
+    Settings("Settings", Icons.Default.Settings, NavRoute.Settings);
 
     @Composable
     fun Icon() = when (this) {
-        Home -> Icon(painter = painterResource(id = R.drawable.ic_home_icon), contentDescription = "Home")
+        Home -> Icon(
+            painter = painterResource(id = R.drawable.ic_home_icon),
+            contentDescription = "Home"
+        )
+
         else -> Icon(icon, contentDescription = label)
     }
 }

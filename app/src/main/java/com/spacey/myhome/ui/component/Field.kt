@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
@@ -144,9 +145,9 @@ fun Field<*>.CardView(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Field<*>.FormInputView(modifier: Modifier = Modifier) {
+fun Field<*>.FormInputView(modifier: Modifier = Modifier, haptics: HapticFeedback? = null) {
     when (this) {
         is Field.Date -> {
             var selectedDate: LocalDate by remember { mutableStateOf(this@FormInputView.value) }
@@ -211,6 +212,7 @@ fun Field<*>.FormInputView(modifier: Modifier = Modifier) {
                             FilterChip(
                                 selected = selectedIndex == it,
                                 onClick = {
+                                    haptics?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                     selectedIndex = it
                                     this@FormInputView.selectedIndex = it
                                 },
@@ -238,6 +240,7 @@ fun Field<*>.FormInputView(modifier: Modifier = Modifier) {
                             FilterChip(
                                 selected = it in datesSelected,
                                 onClick = {
+                                    haptics?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                     if (it in datesSelected) {
                                         datesSelected.remove(it)
                                         value.remove(it)

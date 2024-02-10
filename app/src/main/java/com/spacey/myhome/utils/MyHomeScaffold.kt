@@ -1,6 +1,5 @@
-package com.spacey.myhome
+package com.spacey.myhome.utils
 
-import android.util.Log
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
@@ -14,7 +13,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -23,23 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.spacey.myhome.navigation.MyHomeNavHost
+import androidx.navigation.NavController
 import com.spacey.myhome.navigation.NavItem
 import com.spacey.myhome.navigation.navigateTo
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyHomeAppScreen(navController: NavHostController, viewModel: MyHomeViewModel) {
-    LaunchedEffect(key1 = "") {
-        withContext(Dispatchers.IO) {
-            navController.currentBackStackEntryFlow.collect {
-                Log.d("BackStack", "Current stack: ${it.destination.route}")
-            }
-        }
-    }
+fun MyHomeScaffold(navController: NavController, fab: @Composable (NavController) -> Unit, content: @Composable () -> Unit) {
     val navList = listOf(
         NavItem.Home,
         NavItem.Report,
@@ -101,22 +89,12 @@ fun MyHomeAppScreen(navController: NavHostController, viewModel: MyHomeViewModel
                     )
                 }
             }
-//        }, floatingActionButton = {
-//            AddServiceForm(navController = navController)
-//            val navBackStackEntry = navController.currentBackStackEntryAsState()
-//            if (navBackStackEntry.value?.destination?.route != NavRoute.FORM.route) {
-//                LargeFloatingActionButton(onClick = {
-//                    navController.navigateTo(NavRoute.FORM)
-//                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-//                }) {
-//                    Icon(Icons.Default.Add, contentDescription = "Form")
-//                }
-//            }
         },
+        floatingActionButton = { fab(navController) },
         contentWindowInsets = WindowInsets(16.dp, 8.dp, 16.dp, 8.dp)
     ) {
         Surface(Modifier.padding(it)) {
-            MyHomeNavHost(navController, viewModel)
+            content()
         }
     }
 }
