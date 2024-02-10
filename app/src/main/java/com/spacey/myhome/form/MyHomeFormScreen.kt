@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -14,9 +13,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.spacey.data.base.InputType
 import com.spacey.data.service.ExpenseEntity
 import com.spacey.data.service.RecurrenceType
@@ -24,37 +26,47 @@ import com.spacey.data.service.Service
 import com.spacey.myhome.ui.component.Field
 import com.spacey.myhome.ui.component.FormInputView
 import com.spacey.myhome.ui.component.SubmitFormFab
+import com.spacey.myhome.utils.MyHomeScaffold
 import java.time.DayOfWeek
 import java.time.LocalDate
 
 // TODO: set onSubmit lambda here for submit
 @Composable
-fun MyHomeFormScreen(currentDate: LocalDate, onSubmit: (ExpenseEntity) -> Unit) {
+fun MyHomeFormScreen(date: LocalDate, viewModel: MyHomeFormViewModel, navController: NavController) {
+    UI(currentDate = date, navController = navController) { expense ->
+        viewModel.onEvent(MyHomeFormEvent.CreateExpense(expense))
+        navController.popBackStack()
+    }
+}
+
+@Composable
+fun UI(currentDate: LocalDate, navController: NavController, onSubmit: (ExpenseEntity) -> Unit) {
     var selectedTabIndex: Int by remember { mutableIntStateOf(0) }
     val tabList = listOf(FormTab.Daily(currentDate), FormTab.Monthly(currentDate))
     val selectedTab = tabList[selectedTabIndex]
 
-    Scaffold(
-        topBar = {
-            TabRow(selectedTabIndex = selectedTabIndex) {
-                tabList.forEachIndexed { i, formTab ->
-                    Tab(
-                        selected = selectedTabIndex == i,
-                        onClick = { selectedTabIndex = i },
-                        text = { Text(formTab.name) }
-                    )
+    MyHomeScaffold(navController = navController, fab = {
+        SubmitFormFab {
+            // TODO: Run validations
+            onSubmit(selectedTab.getExpenseEntity())
+        }
+    }) {
+        LazyColumn(contentPadding = PaddingValues(bottom = 16.dp)) {
+
+            item {
+                TabRow(selectedTabIndex = selectedTabIndex) {
+                    tabList.forEachIndexed { i, formTab ->
+                        Tab(
+                            selected = selectedTabIndex == i,
+                            onClick = { selectedTabIndex = i },
+                            text = { Text(formTab.name) }
+                        )
+                    }
                 }
             }
-        },
-        floatingActionButton = {
-            SubmitFormFab {
-                // TODO Run validations
-                onSubmit(selectedTab.getExpenseEntity())
-            }
-        }) {
-        LazyColumn(Modifier.padding(it), contentPadding = PaddingValues(bottom = 16.dp)) {
+
             items(selectedTab.fieldList) { field ->
-                field.FormInputView(Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp))
+                field.FormInputView(Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp), haptics = LocalHapticFeedback.current)
             }
         }
     }
@@ -119,5 +131,5 @@ fun FormTab.getExpenseEntity(): ExpenseEntity {
 @Preview
 @Composable
 fun Preview() {
-    MyHomeFormScreen(LocalDate.now()) {}
+    MyHomeFormScreen(LocalDate.now(), MyHomeFormViewModel(), rememberNavController())
 }
