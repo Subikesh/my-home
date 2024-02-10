@@ -50,11 +50,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
 }
 
 @Composable
-fun UI(
-    selectedDate: LocalDate,
-    expenseList: List<Field<*>>,
-    onDateChanged: (LocalDate) -> Unit
-) {
+private fun UI(selectedDate: LocalDate, expenseList: List<Field<*>>, onDateChanged: (LocalDate) -> Unit) {
     var date: LocalDate by remember { mutableStateOf(selectedDate) }
     onDateChanged(date)
     LazyVerticalStaggeredGrid(

@@ -1,5 +1,6 @@
 package com.spacey.myhome.form
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,26 +34,46 @@ import java.time.LocalDate
 
 @Composable
 fun MyHomeFormScreen(date: LocalDate, viewModel: MyHomeFormViewModel, navController: NavController) {
-    UI(currentDate = date, navController = navController) { expense ->
+    val context = LocalContext.current
+    UI(currentDate = date, navController = navController, onValidationFail = {
+        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+    }) { expense ->
         viewModel.onEvent(MyHomeFormEvent.CreateExpense(expense))
         navController.popBackStack()
     }
 }
 
 @Composable
-fun UI(currentDate: LocalDate, navController: NavController, onSubmit: (ExpenseEntity) -> Unit) {
+private fun UI(currentDate: LocalDate, navController: NavController, onValidationFail: (String) -> Unit, onSubmit: (ExpenseEntity) -> Unit) {
     var selectedTabIndex: Int by remember { mutableIntStateOf(0) }
     val tabList = listOf(FormTab.Daily(currentDate), FormTab.Monthly(currentDate))
     val selectedTab = tabList[selectedTabIndex]
 
+    var validationMessage: String? = null
     MyHomeScaffold(navController = navController, fab = {
         SubmitFormFab {
-            // TODO: Run validations
-            onSubmit(selectedTab.getExpenseEntity())
+            // Validations
+            when (selectedTab) {
+                is FormTab.Daily -> {
+                    if (selectedTab.nameField.value.isBlank()) {
+                        validationMessage = "Name cannot be empty!"
+                    }
+                }
+
+                is FormTab.Monthly -> {
+                    if (selectedTab.nameField.value.isBlank()) {
+                        validationMessage = "Name cannot be empty!"
+                    }
+                }
+            }
+            if (validationMessage == null) {
+                onSubmit(selectedTab.getExpenseEntity())
+            } else {
+                onValidationFail(validationMessage!!)
+            }
         }
     }) {
         LazyColumn(contentPadding = PaddingValues(bottom = 16.dp)) {
-
             item {
                 TabRow(selectedTabIndex = selectedTabIndex) {
                     tabList.forEachIndexed { i, formTab ->
@@ -76,12 +98,17 @@ sealed class FormTab(val name: String, val fieldList: List<Field<*>>) {
         "Daily",
         listOf(
             Field.Text("Name", KeyboardType.Text),
-            Field.Date("From date", selectedDate),
+            Field.Date("Start date", selectedDate),
             Field.WeekDayPicker("Week Days", DayOfWeek.entries),
             Field.Picklist("Type", InputType.entries, InputType.entries.indexOf(InputType.COUNTER)),
             Field.Text("Amount", KeyboardType.Decimal, "0")
         )
-    )
+    ) { val nameField = getFieldByLabel("Name") as Field.Text
+        val amountField = getFieldByLabel("Amount") as Field.Text
+        val startDateField = getFieldByLabel("Start date") as Field.Date
+        val typeField = getFieldByLabel("Type") as Field.Picklist<*>
+        val weekDayField = getFieldByLabel("Week Days") as Field.WeekDayPicker
+    }
 
     class Monthly(selectedDate: LocalDate) : FormTab(
         "Monthly",
@@ -90,37 +117,41 @@ sealed class FormTab(val name: String, val fieldList: List<Field<*>>) {
             Field.Date("From month", selectedDate),
             Field.Text("Amount", KeyboardType.Decimal, "0")
         )
-    )
+    ) {
+        val nameField = getFieldByLabel("Name") as Field.Text
+        val fromMonthField = getFieldByLabel("From month") as Field.Date
+        val amountField = getFieldByLabel("Amount") as Field.Text
+    }
+    protected fun getFieldByLabel(label: String) = fieldList.find { it.label == label }!!
 }
 
 fun FormTab.getExpenseEntity(): ExpenseEntity {
     return when (this) {
         is FormTab.Daily -> {
-            val picklistField = fieldList[3] as Field.Picklist<*>
-            val picklistValue = picklistField.options[picklistField.selectedIndex] as InputType
-            val amount = (fieldList[4] as Field.Text).value.toDouble()
+            val picklistValue = this.typeField.options[this.typeField.selectedIndex] as InputType
+            val amount = this.amountField.value.toDouble()
             ExpenseEntity(
                 service = Service(
-                    name = (fieldList[0] as Field.Text).value,
+                    name = this.nameField.value,
                     type = picklistValue,
                     amount = amount
                 ),
                 amount = amount,
-                startDate = (fieldList[1] as Field.Date).value,
-                recurrence = RecurrenceType.Weekly((fieldList[2] as Field.WeekDayPicker).value.toSet())
+                startDate = this.startDateField.value,
+                recurrence = RecurrenceType.Weekly(this.weekDayField.value.toSet())
             )
         }
 
         is FormTab.Monthly -> {
-            val amount = (fieldList[2] as Field.Text).value.toDouble()
+            val amount = this.amountField.value.toDouble()
             ExpenseEntity(
                 service = Service(
-                    name = (fieldList[0] as Field.Text).value,
+                    name = this.nameField.value,
                     type = InputType.AMOUNT,
                     amount = amount
                 ),
                 amount = amount,
-                startDate = (fieldList[1] as Field.Date).value,
+                startDate = this.fromMonthField.value,
                 recurrence = RecurrenceType.EveryMonth
             )
         }
