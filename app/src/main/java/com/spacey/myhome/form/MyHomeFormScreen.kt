@@ -14,11 +14,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.spacey.data.base.InputType
@@ -33,7 +35,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Composable
-fun MyHomeFormScreen(date: LocalDate, viewModel: MyHomeFormViewModel, navController: NavController) {
+fun MyHomeFormScreen(date: LocalDate,  navController: NavController, viewModel: MyHomeFormViewModel = viewModel()) {
     val context = LocalContext.current
     UI(currentDate = date, navController = navController, onValidationFail = {
         Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -48,10 +50,12 @@ private fun UI(currentDate: LocalDate, navController: NavController, onValidatio
     var selectedTabIndex: Int by remember { mutableIntStateOf(0) }
     val tabList = listOf(FormTab.Daily(currentDate), FormTab.Monthly(currentDate))
     val selectedTab = tabList[selectedTabIndex]
+    val haptics = LocalHapticFeedback.current
 
     var validationMessage: String? = null
     MyHomeScaffold(navController = navController, fab = {
         SubmitFormFab {
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
             // Validations
             when (selectedTab) {
                 is FormTab.Daily -> {
@@ -161,5 +165,5 @@ fun FormTab.getExpenseEntity(): ExpenseEntity {
 @Preview
 @Composable
 fun Preview() {
-    MyHomeFormScreen(LocalDate.now(), MyHomeFormViewModel(), rememberNavController())
+    MyHomeFormScreen(LocalDate.now(), rememberNavController())
 }

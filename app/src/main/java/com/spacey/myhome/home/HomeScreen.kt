@@ -16,29 +16,40 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.spacey.myhome.utils.MyHomeScaffold
+import com.spacey.myhome.navigation.NavRoute
+import com.spacey.myhome.navigation.navigateTo
 import com.spacey.myhome.ui.component.AddServiceFormFab
 import com.spacey.myhome.ui.component.CardView
 import com.spacey.myhome.ui.component.Field
 import com.spacey.myhome.utils.HomeDatePickerRow
+import com.spacey.myhome.utils.MyHomeScaffold
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
-    val uiState by viewModel.uiState
+fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
+    val haptics = LocalHapticFeedback.current
     MyHomeScaffold(navController = navController, fab = {
-        AddServiceFormFab(currentDate = uiState.selectedDate, navController = it)
+        AddServiceFormFab {
+            navController.navigateTo(NavRoute.Form(uiState.selectedDate))
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
     }) {
         UI(
             selectedDate = uiState.selectedDate,
@@ -52,7 +63,9 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
 @Composable
 private fun UI(selectedDate: LocalDate, expenseList: List<Field<*>>, onDateChanged: (LocalDate) -> Unit) {
     var date: LocalDate by remember { mutableStateOf(selectedDate) }
-    onDateChanged(date)
+    LaunchedEffect(date) {
+        onDateChanged(date)
+    }
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         contentPadding = PaddingValues(8.dp),

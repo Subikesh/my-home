@@ -1,7 +1,5 @@
 package com.spacey.myhome.home
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewModelScope
 import com.spacey.data.AppComponent
@@ -9,13 +7,16 @@ import com.spacey.data.base.InputType
 import com.spacey.data.service.ExpenseRepository
 import com.spacey.myhome.base.BaseViewModel
 import com.spacey.myhome.ui.component.Field
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class HomeViewModel : BaseViewModel<HomeUiState, HomeEvent>() {
 
-    private val _uiState = mutableStateOf(HomeUiState(LocalDate.now(), emptyList()))
-    override val uiState: State<HomeUiState> = _uiState
+    private val _uiState = MutableStateFlow(HomeUiState(LocalDate.now(), emptyList()))
+    override val uiState: StateFlow<HomeUiState>
+        get() = _uiState
 
     override fun onEvent(event: HomeEvent) {
         when (event) {
