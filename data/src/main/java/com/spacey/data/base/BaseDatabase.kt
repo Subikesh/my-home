@@ -58,12 +58,6 @@ abstract class AppDatabase : RoomDatabase() {
     }
 }
 
-object ServiceCol {
-    const val NAME = "name"
-    const val TYPE = "type"
-    const val AMOUNT = "amount"
-}
-
 object DBConstant {
     const val SEPARATOR = "^_^"
 }
