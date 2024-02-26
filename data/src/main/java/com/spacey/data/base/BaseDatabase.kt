@@ -9,19 +9,19 @@ import androidx.room.TypeConverters
 import com.spacey.data.service.DateRecurrence
 import com.spacey.data.service.Expense
 import com.spacey.data.service.ExpenseDao
-import com.spacey.data.service.RecurrenceType
 import com.spacey.data.service.Service
+import com.spacey.data.service.ServiceRegistry
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.Month
 import java.time.format.DateTimeFormatter
 
 @Database(
     entities = [
         Expense::class,
         Service::class,
+        ServiceRegistry::class,
         DateRecurrence::class
     ], version = 2
 )
@@ -82,19 +82,26 @@ class Converters {
     fun stringToInputType(type: String?): InputType? = type?.let { InputType.valueOf(it) }
 
     @TypeConverter
-    fun recurrenceToString(recurrence: RecurrenceType?): String? = recurrence?.asString()
+    fun weekDaysToString(weekDays: List<DayOfWeek>): String = weekDays.joinToString(DBConstant.SEPARATOR) { it.ordinal.toString() }
 
     @TypeConverter
-    fun stringToRecurrence(recurrence: String?): RecurrenceType? {
-        if (recurrence == null) return null
-        val values = recurrence.split(DBConstant.SEPARATOR)
-        val (type, value) = values.first() to values.subList(1, values.size)
-        return when (type) {
-            RecurrenceType.THIS_MONTH -> RecurrenceType.OnlyThisMonth
-            RecurrenceType.TODAY -> RecurrenceType.OnlyToday
-            RecurrenceType.WEEKLY -> RecurrenceType.Weekly(value.map { DayOfWeek.valueOf(it) }.toSet())
-            RecurrenceType.MONTHLY -> RecurrenceType.Monthly(value.map { Month.valueOf(it) }.toSet())
-            else -> RecurrenceType.OnlyToday
-        }
-    }
+    fun stringToWeekDays(weekDays: String): List<DayOfWeek> = weekDays.split(DBConstant.SEPARATOR).map { DayOfWeek.of(it.toInt()) }
+
+//    @TypeConverter
+//    fun recurrenceToString(recurrence: RecurrenceType?): String? = recurrence?.asString()
+//
+//    @TypeConverter
+//    fun stringToRecurrence(recurrence: String?): RecurrenceType? {
+//        if (recurrence == null) return null
+//        val values = recurrence.split(DBConstant.SEPARATOR)
+//        val (type, value) = values.first() to values.subList(1, values.size)
+//        return when (type) {
+//            RecurrenceType.THIS_MONTH -> RecurrenceType.OnlyThisMonth
+//            RecurrenceType.WEEKLY -> RecurrenceType.Weekly(value.map { DayOfWeek.valueOf(it) }.toSet())
+//            RecurrenceType.MONTHLY -> RecurrenceType.Monthly(value.map { Month.valueOf(it) }.toSet())
+//            RecurrenceType.EVERY_DAY -> RecurrenceType.EveryDay
+//            RecurrenceType.EVERY_MONTH -> RecurrenceType.EveryMonth
+//            else -> null
+//        }
+//    }
 }

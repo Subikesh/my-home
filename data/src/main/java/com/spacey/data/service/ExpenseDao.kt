@@ -7,68 +7,106 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import java.lang.Exception
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Dao
 abstract class ExpenseDao {
-    // TODO check if between is inclusive
-    @Transaction
-    @Query("SELECT Expense.*, start_date, recurrence, updated_time FROM Expense JOIN DateRecurrence ON Expense.id = DateRecurrence.expense_id WHERE" +
-            " (recurrence LIKE '${RecurrenceType.TODAY}' AND :date = start_date) " +
-            " OR :date >= start_date")
-    protected abstract fun getExpenses(date: LocalDate): Flow<List<ExpenseEntity>>
 
-    fun getDateExpenses(date: LocalDate): Flow<List<ExpenseEntity>> {
-        return getExpenses(date).map {
-            it.filter { expense ->
-                when (val recurrence = expense.recurrence) {
-                     RecurrenceType.EveryDay -> true
-                     RecurrenceType.EveryMonth -> true
-                     RecurrenceType.OnlyThisMonth -> date.month == expense.startDate.month
-                     RecurrenceType.OnlyToday -> date == expense.startDate
-                     is RecurrenceType.Monthly -> date.month in recurrence.months
-                     is RecurrenceType.Weekly -> date.dayOfWeek in recurrence.weekdays
-                }
+    fun getExpenses(date: LocalDate): List<NewExpenseEntity> {
+        val expenses = getDefaultExpense(date).associateBy { it.serviceRegistryId }.toMutableMap()
+        expenses.putAll(getDateExpense(date).associateBy { it.serviceRegistryId })
+        expenses.filter { (_, expense) ->
+            val dateRecurrence = getDateRecurrence(expense.dateRecurrenceId)
+            date.dayOfWeek in dateRecurrence.weekDays
+        }
+        return expenses.map { it.value.toEntity() }
+    }
+
+    @Transaction
+    suspend fun insert(newExpenseEntity: NewExpenseEntity, isDaily: Boolean): Boolean {
+        return try {
+            val serviceReg = getServiceRegistry(newExpenseEntity.service.name)
+            val dateRecurrenceList = getDateRecurrence(newExpenseEntity.startDate, newExpenseEntity.weekDays)
+            val dateRecurrenceId = if (dateRecurrenceList.isEmpty()) {
+                val dateRecurrence = DateRecurrence(newExpenseEntity.startDate, newExpenseEntity.weekDays)
+                insert(dateRecurrence)
+            } else{
+                dateRecurrenceList.first().id
             }
-        }.distinctUntilChanged()
+            // TODO: isDaily is only for false. Handle today's update here
+            insert(Expense(serviceReg.id, dateRecurrenceId, newExpenseEntity.amount, isDaily))
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
 
-    @Transaction
-    open suspend fun insert(expense: ExpenseEntity): Long {
-        val serviceId = insert(expense.service)
-        val expenseId = if (expense.id == -1L) {
-             insert(Expense(serviceId, expense.amount))
-        } else expense.id
-        return insert(DateRecurrence(expense.startDate, expense.recurrence, expenseId, expense.updatedTime))
+    private fun Expense.toEntity(): NewExpenseEntity {
+        val serviceRegistry = getServiceRegistry(serviceRegistryId)
+        val service = getService(serviceRegistry.serviceId)
+        val recurrence = getDateRecurrence(this.dateRecurrenceId)
+        return NewExpenseEntity(
+            startDate = recurrence.startDate,
+            service = service,
+            serviceAmount = serviceRegistry.amount,
+            amount = this.amount,
+            weekDays = recurrence.weekDays,
+        )
     }
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Query(
+        "SELECT Expense.* FROM Expense " +
+                "JOIN DateRecurrence ON Expense.date_recurrence_id = DateRecurrence.id " +
+                "WHERE Expense.is_daily = 0 AND :date >= start_date"
+    )
+    protected abstract fun getDefaultExpense(date: LocalDate): List<Expense>
+
+    @Query(
+        "SELECT Expense.* FROM Expense " +
+                "JOIN DateRecurrence ON Expense.date_recurrence_id = DateRecurrence.id " +
+                "WHERE start_date = :date AND Expense.is_daily = 1"
+    )
+    abstract fun getDateExpense(date: LocalDate): List<Expense>
+
+    @Query("SELECT * FROM DateRecurrence WHERE id = :recurrenceId")
+    protected abstract fun getDateRecurrence(recurrenceId: Long): DateRecurrence
+
+    @Query("SELECT * FROM DateRecurrence WHERE start_date = :date AND week_days = :weekDays")
+    protected abstract fun getDateRecurrence(date: LocalDate, weekDays: List<DayOfWeek>): List<DateRecurrence>
+
+    @Query("SELECT ServiceRegistry.* FROM " +
+            "ServiceRegistry JOIN Service ON Service.id = ServiceRegistry.service_id " +
+            "WHERE Service.name = name LIMIT 1")
+    protected abstract fun getServiceRegistry(name: String): ServiceRegistry
+
+    @Query("SELECT * FROM ServiceRegistry WHERE id = :serviceRegistryId")
+    protected abstract fun getServiceRegistry(serviceRegistryId: Long): ServiceRegistry
+
+    @Query("SELECT * FROM Service WHERE id = :serviceId")
+    protected abstract fun getService(serviceId: Long): Service
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(expense: Expense): Long
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract suspend fun insert(service: Service): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(dateRecurrence: DateRecurrence): Long
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract suspend fun insert(service: Service): Long
+
     @Query("DELETE FROM Expense WHERE id = :id")
     abstract suspend fun delete(id: Long)
-
-//    @Insert(onConflict = OnConflictStrategy.IGNORE)
-//    abstract fun update(expense: Expense): Long
-//    @Insert(onConflict = OnConflictStrategy.REPLACE)
-//    abstract fun update(service: Service): Long
 }
 
 data class ExpenseEntity(
-    @Relation(parentColumn = ExpenseCol.SERVICE_ID, entityColumn = "id") val service: Service,
+    @Relation(parentColumn = ExpenseCol.SERVICE_REGISTRY_ID, entityColumn = "id") val service: Service,
     @ColumnInfo(ExpenseCol.AMOUNT) val amount: Double,
     @ColumnInfo(DateRecurrenceCol.START_DATE) val startDate: LocalDate,
-    @ColumnInfo(DateRecurrenceCol.RECURRENCE) val recurrence: RecurrenceType,
     @ColumnInfo(DateRecurrenceCol.UPDATED_TIME) val updatedTime: Long = System.currentTimeMillis(),
-    @ColumnInfo(ExpenseCol.SERVICE_ID) private val serviceId: Long = 0,
+    @ColumnInfo(ExpenseCol.SERVICE_REGISTRY_ID) private val serviceId: Long = 0,
     val id: Long = -1L
 )
+
