@@ -2,8 +2,8 @@ package com.spacey.myhome.form
 
 import androidx.lifecycle.viewModelScope
 import com.spacey.data.AppComponent
-import com.spacey.data.service.ExpenseEntity
 import com.spacey.data.service.ExpenseRepository
+import com.spacey.data.service.NewExpenseEntity
 import com.spacey.myhome.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +18,7 @@ class MyHomeFormViewModel : BaseViewModel<Unit, MyHomeFormEvent>() {
         when (event) {
             is MyHomeFormEvent.CreateExpense -> {
                 viewModelScope.launch {
-                    repository.insertExpense(event.expense)
+                    repository.insertExpense(event.newExpenseEntity, false)
                 }
             }
         }
@@ -26,5 +26,5 @@ class MyHomeFormViewModel : BaseViewModel<Unit, MyHomeFormEvent>() {
 }
 
 sealed class MyHomeFormEvent {
-    data class CreateExpense(val expense: ExpenseEntity) : MyHomeFormEvent()
+    data class CreateExpense(val newExpenseEntity: NewExpenseEntity) : MyHomeFormEvent()
 }
