@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -18,42 +16,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
-import java.time.DayOfWeek
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeekDayPicker(
-    label: String,
-    weekDays: List<DayOfWeek>,
-    modifier: Modifier = Modifier,
-    onSelectWeekDay: (DayOfWeek) -> Unit,
-    onUnselectWeekDay: (DayOfWeek) -> Unit
-) {
+fun <T> PicklistField(label: String, options: List<T>, selectedIndex: Int, modifier: Modifier = Modifier, onSelected: (Int) -> Unit) {
     val haptics = LocalHapticFeedback.current
+
     Card(modifier.fillMaxWidth()) {
         Column {
             Text(text = label, modifier = Modifier.padding(16.dp))
-            LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), content = {
-                items(DayOfWeek.entries) {
+
+            LazyRow(contentPadding = PaddingValues(horizontal = 16.dp)) {
+//                    LazyVerticalGrid(columns = GridCells.Fixed(3), contentPadding = PaddingValues(horizontal = 16.dp)) {
+                items(options.size) {
                     FilterChip(
-                        selected = it in weekDays,
+                        selected = selectedIndex == it,
                         onClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            if (it in weekDays) {
-                                onUnselectWeekDay(it)
-                            } else {
-                                onSelectWeekDay(it)
-                            }
+                            onSelected(it)
                         },
-                        label = { Text(it.name.first().uppercase()) },
-                        shape = RoundedCornerShape(percent = 50),
+                        label = { Text(options[it].toString()) },
+                        modifier = Modifier.padding(8.dp),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primary,
                             selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                         )
                     )
                 }
-            })
+            }
         }
     }
 }

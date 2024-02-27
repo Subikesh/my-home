@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import com.spacey.myhome.R
 import com.spacey.myhome.form.MyHomeFormScreen
 import com.spacey.myhome.home.HomeScreen
+import java.lang.IllegalArgumentException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -26,11 +27,12 @@ fun MyHomeNavHost(navController: NavHostController) {
             HomeScreen(navController)
         }
         // TODO Make the route static
-        composable(NavRoute.Form(LocalDate.now()).route) {
+        composable(NavRoute.Form(LocalDate.now(), "").route) {
             val date = it.arguments?.getString("date")
                 ?.let { date -> LocalDate.parse(date, DateTimeFormatter.ISO_DATE) }
                 ?: LocalDate.now()
-            MyHomeFormScreen(date, navController)
+            val service = it.arguments?.getString("service") ?: throw IllegalArgumentException()
+            MyHomeFormScreen(date, navController, service)
         }
         composable(NavRoute.Report.route) {
             Text("Hello Android! We are in Reports screen")

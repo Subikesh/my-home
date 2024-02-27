@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 sealed class NavRoute(val route: String, val specificRoute: String = route) {
     data object Home : NavRoute("home")
-    data class Form(val selectedDate: LocalDate) : NavRoute("form/{date}", "form/$selectedDate")
+    data class Form(val selectedDate: LocalDate, val service: String) : NavRoute("form/{date}/{service}", "form/$selectedDate/$service")
     data object Report : NavRoute("report")
     data object Settings : NavRoute("settings")
     data object Notification : NavRoute("notification")

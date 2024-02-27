@@ -47,7 +47,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewMode
     val haptics = LocalHapticFeedback.current
     MyHomeScaffold(navController = navController, fab = {
         AddServiceFormFab {
-            navController.navigateTo(NavRoute.Form(uiState.selectedDate))
+            // TODO: Create a service select screen and pass to service
+            navController.navigateTo(NavRoute.Form(uiState.selectedDate, "Milk"))
             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
         }
     }) {

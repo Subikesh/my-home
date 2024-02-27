@@ -1,16 +1,18 @@
 package com.spacey.myhome.form
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,18 +23,26 @@ import androidx.navigation.compose.rememberNavController
 import com.spacey.data.base.InputType
 import com.spacey.data.service.NewExpenseEntity
 import com.spacey.data.service.Service
+import com.spacey.myhome.form.field.DateField
+import com.spacey.myhome.form.field.PicklistField
 import com.spacey.myhome.form.field.TextInputField
 import com.spacey.myhome.form.field.WeekDayPicker
-import com.spacey.myhome.ui.component.Field
 import com.spacey.myhome.ui.component.SubmitFormFab
 import com.spacey.myhome.utils.MyHomeScaffold
 import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Composable
-fun MyHomeFormScreen(date: LocalDate, navController: NavController, service: Service, viewModel: MyHomeFormViewModel = viewModel()) {
-    val context = LocalContext.current
-    UI(currentDate = date, service = service, navController = navController) { expense ->
+fun MyHomeFormScreen(
+    date: LocalDate,
+    navController: NavController,
+    service: String,
+    amount: Double = 0.0,
+    weekDays: List<DayOfWeek> = DayOfWeek.entries,
+    defaultType: InputType = InputType.COUNTER,
+    viewModel: MyHomeFormViewModel = viewModel()
+) {
+    UI(currentDate = date, service = service, defaultAmount = amount, defaultWeekDays = weekDays, defaultType = defaultType, navController = navController) { expense ->
         viewModel.onEvent(MyHomeFormEvent.CreateExpense(expense))
         navController.popBackStack()
     }
@@ -40,63 +50,66 @@ fun MyHomeFormScreen(date: LocalDate, navController: NavController, service: Ser
 
 //TODO handle for creating new expense and also editing existing ExpenseEntity
 @Composable
-private fun UI(currentDate: LocalDate, service: Service, amount: Double,  navController: NavController, onSubmit: (NewExpenseEntity) -> Unit) {
+private fun UI(
+    currentDate: LocalDate,
+    service: String,
+    defaultAmount: Double,
+    defaultWeekDays: List<DayOfWeek>,
+    defaultType: InputType,
+    navController: NavController,
+    onSubmit: (NewExpenseEntity) -> Unit
+) {
     val haptics = LocalHapticFeedback.current
     var startDate: LocalDate by remember { mutableStateOf(currentDate) }
-    var amount: Double by remember {
-        mutableDoubleStateOf()
+    var amount: String by remember {
+        mutableStateOf(defaultAmount.toString())
     }
-    var type: InputType by remember {
-        mutableStateOf(InputType.COUNTER)
+    var inputTypeIndex: Int by remember {
+        mutableIntStateOf(InputType.entries.indexOf(defaultType))
+    }
+    val weekDays = remember {
+        mutableStateListOf(*(defaultWeekDays.toTypedArray()))
     }
 
     MyHomeScaffold(navController = navController, fab = {
         SubmitFormFab {
             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-            onSubmit(NewExpenseEntity(
-
-            ))
+            onSubmit(
+                NewExpenseEntity(
+                    startDate = startDate,
+                    service = Service(service, InputType.entries[inputTypeIndex]),
+                    amount = amount.toDouble(), // TODO: Get default expense entry
+                    serviceAmount = amount.toDouble(),
+                    weekDays = weekDays
+                )
+            )
         }
     }) {
+        Column {
+            val paddingModifier = Modifier.padding(top = 16.dp)
 
+            Text(text = "Add expense for $service", modifier = paddingModifier, style = MaterialTheme.typography.displaySmall)
 
-        val paddingModifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp)
-        Text(text = "Add expense for ${service.name}", modifier = paddingModifier)
-
-        TextInputField(label = "Amount", textValue = "0", keyboardType = KeyboardType.Decimal, modifier = paddingModifier) {
-
+            TextInputField(label = "Amount", textValue = amount, keyboardType = KeyboardType.Decimal, modifier = paddingModifier) {
+                amount = it
+            }
+            DateField(label = "Start date", modifier = paddingModifier, selectedDate = startDate) {
+                startDate = it
+            }
+            WeekDayPicker(label = "Week Days", weekDays = weekDays, modifier = paddingModifier, onSelectWeekDay = {
+                weekDays.add(it)
+            }) {
+                weekDays.remove(it)
+            }
+            PicklistField(label = "Type", options = InputType.entries, modifier = paddingModifier, selectedIndex = inputTypeIndex) {
+                inputTypeIndex = it
+            }
         }
-
-        WeekDayPicker(label = "Week Days", weekDays = DayOfWeek.entries, modifier = paddingModifier) {
-
-        }
-
-        Field.WeekDayPicker("Week Days", DayOfWeek.entries),
-        Field.Picklist("Type", InputType.entries, InputType.entries.indexOf(InputType.COUNTER)),
-        Field.Text("Amount", KeyboardType.Decimal, "0")
-
-//        LazyColumn(contentPadding = PaddingValues(bottom = 16.dp)) {
-//            item {
-//                TabRow(selectedTabIndex = selectedTabIndex) {
-//                    tabList.forEachIndexed { i, formTab ->
-//                        Tab(
-//                            selected = selectedTabIndex == i,
-//                            onClick = { selectedTabIndex = i },
-//                            text = { Text(formTab.name) }
-//                        )
-//                    }
-//                }
-//            }
-
-//            items(selectedTab.fieldList) { field ->
-//                field.FormInputView(Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp), haptics = LocalHapticFeedback.current)
-//            }
-//        }
     }
 }
 
 @Preview
 @Composable
 fun FormPreview() {
-    MyHomeFormScreen(LocalDate.now(), Service("Milk"), rememberNavController())
+    MyHomeFormScreen(LocalDate.now(), rememberNavController(), "Milk")
 }

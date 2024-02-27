@@ -32,20 +32,24 @@ class HomeViewModel : BaseViewModel<HomeUiState, HomeEvent>() {
     private val repository: ExpenseRepository = AppComponent.expenseRepository
 
     private suspend fun refreshExpenses(date: LocalDate) {
-        repository.getExpenses(date).collect {
-            val field: List<Field<*>> = it.map { expense ->
-                val service = expense.service
-                // TODO: Calculate this amount count
-                val count = if (service.amount.toInt() == 0) 0 else (expense.amount / service.amount).toInt()
-                when (service.type) {
-                    // TODO: review amount/text inputType
-                    InputType.AMOUNT -> Field.Text(service.name, KeyboardType.Text)
-                    InputType.COUNTER -> Field.Counter(service.name, count)
-                    InputType.CHECKBOX -> Field.CheckBox(service.name, false)
+        val expenses = repository.getExpenses(date)
+        val fields: List<Field<*>> = expenses.map { expense ->
+            val service = expense.service
+            // TODO: Calculate this amount count
+            when (service.type) {
+                // TODO: review amount/text inputType
+                InputType.AMOUNT -> Field.Text(service.name, KeyboardType.Text, expense.amount.toString())
+                InputType.COUNTER -> {
+                    val count = if (expense.serviceAmount == 0.0) 0 else (expense.amount / expense.serviceAmount).toInt()
+                    Field.Counter(service.name, count)
+                }
+                InputType.CHECKBOX -> {
+                    val isChecked = expense.amount > 0
+                    Field.CheckBox(service.name, isChecked)
                 }
             }
-            _uiState.value = _uiState.value.copy(expenseList = field)
         }
+        _uiState.value = _uiState.value.copy(expenseList = fields)
     }
 }
 
