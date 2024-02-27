@@ -42,7 +42,7 @@ data class Service(
     @PrimaryKey(autoGenerate = true) val id: Long = 0
 )
 
-@Entity(tableName = Table.DATE_RECURRENCE)
+@Entity(tableName = Table.DATE_RECURRENCE, indices = [Index(DateRecurrenceCol.START_DATE, DateRecurrenceCol.WEEK_DAYS)])
 data class DateRecurrence(
     @ColumnInfo(DateRecurrenceCol.START_DATE) val startDate: LocalDate,
     @ColumnInfo(DateRecurrenceCol.WEEK_DAYS) val weekDays: List<DayOfWeek>,

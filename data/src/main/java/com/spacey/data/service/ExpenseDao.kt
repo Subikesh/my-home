@@ -6,8 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Relation
-import androidx.room.Transaction
-import java.lang.Exception
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -17,17 +15,21 @@ abstract class ExpenseDao {
     fun getExpenses(date: LocalDate): List<NewExpenseEntity> {
         val expenses = getDefaultExpense(date).associateBy { it.serviceRegistryId }.toMutableMap()
         expenses.putAll(getDateExpense(date).associateBy { it.serviceRegistryId })
-        expenses.filter { (_, expense) ->
+        return expenses.filter { (_, expense) ->
             val dateRecurrence = getDateRecurrence(expense.dateRecurrenceId)
             date.dayOfWeek in dateRecurrence.weekDays
-        }
-        return expenses.map { it.value.toEntity() }
+        }.map { it.value.toEntity() }
     }
 
-    @Transaction
     suspend fun insert(newExpenseEntity: NewExpenseEntity, isDaily: Boolean): Boolean {
         return try {
-            val serviceReg = getServiceRegistry(newExpenseEntity.service.name)
+            val serviceRegId = getServiceRegistry(newExpenseEntity.service.name)?.id ?: let {
+                // TODO: Remove serviceInsertion after inserting default entries for service table
+                val serviceId = insert(newExpenseEntity.service)
+                val serviceRegistry = ServiceRegistry(serviceId, newExpenseEntity.serviceAmount)
+                insert(serviceRegistry)
+            }
+
             val dateRecurrenceList = getDateRecurrence(newExpenseEntity.startDate, newExpenseEntity.weekDays)
             val dateRecurrenceId = if (dateRecurrenceList.isEmpty()) {
                 val dateRecurrence = DateRecurrence(newExpenseEntity.startDate, newExpenseEntity.weekDays)
@@ -36,7 +38,7 @@ abstract class ExpenseDao {
                 dateRecurrenceList.first().id
             }
             // TODO: isDaily is only for false. Handle today's update here
-            insert(Expense(serviceReg.id, dateRecurrenceId, newExpenseEntity.amount, isDaily))
+            insert(Expense(serviceRegId, dateRecurrenceId, newExpenseEntity.amount, isDaily))
             true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -79,8 +81,8 @@ abstract class ExpenseDao {
 
     @Query("SELECT ServiceRegistry.* FROM " +
             "ServiceRegistry JOIN Service ON Service.id = ServiceRegistry.service_id " +
-            "WHERE Service.name = name LIMIT 1")
-    protected abstract fun getServiceRegistry(name: String): ServiceRegistry
+            "WHERE Service.name = :name LIMIT 1")
+    protected abstract fun getServiceRegistry(name: String): ServiceRegistry?
 
     @Query("SELECT * FROM ServiceRegistry WHERE id = :serviceRegistryId")
     protected abstract fun getServiceRegistry(serviceRegistryId: Long): ServiceRegistry
@@ -89,10 +91,13 @@ abstract class ExpenseDao {
     protected abstract fun getService(serviceId: Long): Service
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insert(expense: Expense): Long
+    protected abstract fun insert(serviceRegistry: ServiceRegistry): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insert(dateRecurrence: DateRecurrence): Long
+    abstract suspend fun insert(expense: Expense): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract suspend fun insert(dateRecurrence: DateRecurrence): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun insert(service: Service): Long

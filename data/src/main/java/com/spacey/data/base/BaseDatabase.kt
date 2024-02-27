@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
         Service::class,
         ServiceRegistry::class,
         DateRecurrence::class
-    ], version = 2
+    ], version = 4
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -82,7 +82,7 @@ class Converters {
     fun stringToInputType(type: String?): InputType? = type?.let { InputType.valueOf(it) }
 
     @TypeConverter
-    fun weekDaysToString(weekDays: List<DayOfWeek>): String = weekDays.joinToString(DBConstant.SEPARATOR) { it.ordinal.toString() }
+    fun weekDaysToString(weekDays: List<DayOfWeek>): String = weekDays.joinToString(DBConstant.SEPARATOR) { it.value.toString() }
 
     @TypeConverter
     fun stringToWeekDays(weekDays: String): List<DayOfWeek> = weekDays.split(DBConstant.SEPARATOR).map { DayOfWeek.of(it.toInt()) }
