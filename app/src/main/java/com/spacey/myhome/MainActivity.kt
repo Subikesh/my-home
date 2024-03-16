@@ -8,7 +8,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.spacey.myhome.navigation.MyHomeNavHost
 import com.spacey.myhome.ui.theme.MyHomeTheme
 import com.spacey.myhome.ui.theme.SetStatusBarColor
 
@@ -24,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navComponent = rememberNavController()
-                    MyHomeNavHost(navController = navComponent)
+                    MyHomeScaffold(navController = navComponent)
                 }
             }
         }

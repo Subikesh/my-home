@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,33 +32,32 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.spacey.myhome.navigation.NavRoute
 import com.spacey.myhome.navigation.navigateTo
-import com.spacey.myhome.ui.component.AddServiceFormFab
 import com.spacey.myhome.ui.component.CardView
 import com.spacey.myhome.ui.component.Field
 import com.spacey.myhome.utils.HomeDatePickerRow
-import com.spacey.myhome.utils.MyHomeScaffold
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.spacey.myhome.ScaffoldViewState
 
 @Composable
-fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewModel(), setScaffoldState: (ScaffoldViewState) -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     val haptics = LocalHapticFeedback.current
-    MyHomeScaffold(navController = navController, fab = {
-        AddServiceFormFab {
-            // TODO: Create a service select screen and pass to service
-            navController.navigateTo(NavRoute.Form(uiState.selectedDate, "Milk"))
-            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-        }
-    }) {
-        UI(
-            selectedDate = uiState.selectedDate,
-            expenseList = uiState.expenseList
-        ) {
-            viewModel.onEvent(HomeEvent.SetDate(it))
-        }
+    setScaffoldState(ScaffoldViewState(fabIcon = {
+        Icon(Icons.Default.Add, contentDescription = "Form")
+    }, onFabClick = {
+        // TODO: Create a service select screen and pass to service
+        navController.navigateTo(NavRoute.Form(uiState.selectedDate, "Milk"))
+        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+    }))
+
+    UI(
+        selectedDate = uiState.selectedDate,
+        expenseList = uiState.expenseList
+    ) {
+        viewModel.onEvent(HomeEvent.SetDate(it))
     }
 }
 

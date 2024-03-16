@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.spacey.myhome.R
+import com.spacey.myhome.ScaffoldViewState
 import com.spacey.myhome.form.MyHomeFormScreen
 import com.spacey.myhome.home.HomeScreen
 import java.lang.IllegalArgumentException
@@ -21,10 +22,12 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun MyHomeNavHost(navController: NavHostController) {
+fun MyHomeNavHost(navController: NavHostController, setScaffoldState: (ScaffoldViewState) -> Unit) {
     NavHost(navController, startDestination = NavRoute.Home.route) {
         composable(NavRoute.Home.route) {
-            HomeScreen(navController)
+            HomeScreen(navController) { scaffold ->
+                setScaffoldState(scaffold)
+            }
         }
         // TODO Make the route static
         composable(NavRoute.Form(LocalDate.now(), "").route) {
@@ -32,7 +35,9 @@ fun MyHomeNavHost(navController: NavHostController) {
                 ?.let { date -> LocalDate.parse(date, DateTimeFormatter.ISO_DATE) }
                 ?: LocalDate.now()
             val service = it.arguments?.getString("service") ?: throw IllegalArgumentException()
-            MyHomeFormScreen(date, navController, service)
+            MyHomeFormScreen(date, navController, service) { scaffold ->
+                setScaffoldState(scaffold)
+            }
         }
         composable(NavRoute.Report.route) {
             Text("Hello Android! We are in Reports screen")
