@@ -3,11 +3,13 @@ package com.spacey.myhome.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.navOptions
+import com.spacey.data.service.Service
 import java.time.LocalDate
 
 sealed class NavRoute(val route: String, val specificRoute: String = route) {
     data object Home : NavRoute("home")
-    data class Form(val selectedDate: LocalDate, val service: String) : NavRoute("form/{date}/{service}", "form/$selectedDate/$service")
+    data class ExpenseForm(val selectedDate: LocalDate, val service: String) : NavRoute("form/{date}/{service}", "form/$selectedDate/$service")
+    data class ServiceForm(val service: Service?) : NavRoute("service_form/{service_name}/{input_type}", "service_form/${service?.name}/${service?.type?.name}")
     data object Report : NavRoute("report")
     data object Settings : NavRoute("settings")
     data object Notification : NavRoute("notification")

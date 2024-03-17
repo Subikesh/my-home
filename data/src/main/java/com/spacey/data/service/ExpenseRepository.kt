@@ -2,6 +2,7 @@ package com.spacey.data.service
 
 import com.spacey.data.base.InputType
 import com.spacey.data.base.ioScope
+import java.lang.Exception
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -33,6 +34,17 @@ class ExpenseRepository(private val serviceDao: ServiceDao) {
         return ioScope {
             val serviceRegistries = serviceDao.getAllServiceRegistries(date)
             serviceRegistries.map { it.toServiceEntity() }
+        }
+    }
+
+    suspend fun createService(service: Service): Boolean {
+        return ioScope {
+            try {
+                serviceDao.insertService(listOf(service))
+                true
+            } catch (e: Exception) {
+                false
+            }
         }
     }
 

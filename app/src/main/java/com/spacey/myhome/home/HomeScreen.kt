@@ -1,6 +1,8 @@
 package com.spacey.myhome.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -59,7 +61,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewMode
         servicesList = uiState.servicesList,
         setScaffoldState = setScaffoldState,
         navigateToForm = {
-            navController.navigateTo(NavRoute.Form(uiState.selectedDate, it.name))
+            navController.navigateTo(NavRoute.ExpenseForm(uiState.selectedDate, it.name))
+        },
+        navigateToServiceForm = {
+            navController.navigateTo(NavRoute.ServiceForm(it))
         }
     ) {
         viewModel.onEvent(HomeEvent.SetDate(it))
@@ -74,6 +79,7 @@ private fun UI(
     servicesList: List<Service>,
     setScaffoldState: (ScaffoldViewState) -> Unit,
     navigateToForm: (Service) -> Unit,
+    navigateToServiceForm: (Service?) -> Unit,
     onDateChanged: (LocalDate) -> Unit
 ) {
     var date: LocalDate by remember { mutableStateOf(selectedDate) }
@@ -90,7 +96,7 @@ private fun UI(
         isBottomSheetOpen = true
     }))
 
-    HomeBottomSheet(isBottomSheetOpen, nonSubscribedExpenses, servicesList, navigateToForm) {
+    HomeBottomSheet(isBottomSheetOpen, nonSubscribedExpenses, servicesList, navigateToForm, navigateToServiceForm) {
         isBottomSheetOpen = false
     }
 
@@ -134,12 +140,13 @@ private fun UI(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 private fun HomeBottomSheet(
     isSheetOpen: Boolean,
     nonSubscribedExpenses: List<Field<*>>,
     servicesList: List<Service>,
     navigateToForm: (Service) -> Unit,
+    navigateToServiceForm: (Service?) -> Unit,
     onSheetDismiss: () -> Unit
 ) {
     val haptics = LocalHapticFeedback.current
@@ -164,12 +171,28 @@ private fun HomeBottomSheet(
                 Text(text = "Subscribe to more services", bottomPadding)
                 LazyVerticalGrid(columns = GridCells.Fixed(2)) {
                     items(servicesList) { service ->
+                        Card(modifier = Modifier
+                            .padding(8.dp)
+                            .combinedClickable(onLongClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onSheetDismiss()
+                                navigateToServiceForm(service)
+                            }) {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onSheetDismiss()
+                                navigateToForm(service)
+                            }) {
+                            Text(service.name, Modifier.padding(16.dp))
+                        }
+                    }
+
+                    item {
                         Card(modifier = Modifier.padding(8.dp), onClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             onSheetDismiss()
-                            navigateToForm(service)
+                            navigateToServiceForm(null)
                         }) {
-                            Text(service.name, Modifier.padding(16.dp))
+                            Text(text = "Add Service", Modifier.padding(16.dp))
                         }
                     }
                 }

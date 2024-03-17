@@ -50,7 +50,7 @@ abstract class ServiceDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun insert(dateRecurrence: List<DateRecurrence>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertService(services: List<Service>)
 
     @Query("DELETE FROM ServiceRegistry WHERE service_id == :serviceId AND start_date >= :date")
