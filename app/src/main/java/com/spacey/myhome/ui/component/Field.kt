@@ -145,7 +145,7 @@ fun Field<*>.CardView(modifier: Modifier = Modifier) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 @Composable
 fun Field<*>.FormInputView(modifier: Modifier = Modifier, haptics: HapticFeedback? = null) {
     when (this) {

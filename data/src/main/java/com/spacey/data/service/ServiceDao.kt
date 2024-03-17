@@ -15,7 +15,7 @@ abstract class ServiceDao {
                 "ON ServiceRegistry.id = DateRecurrence.service_registry_id " +
             "WHERE week_day = :weekDay AND " +
             "start_date <= :date AND (end_date IS NULL OR end_date > :date)")
-    abstract fun getServicesOn(date: LocalDate, weekDay: DayOfWeek = date.dayOfWeek): List<ServiceRegistry>
+    abstract suspend fun getServicesOn(date: LocalDate, weekDay: DayOfWeek = date.dayOfWeek): List<ServiceRegistry>
 
     @Query(
         "SELECT ServiceRegistry.* FROM " +
@@ -23,13 +23,20 @@ abstract class ServiceDao {
                 "WHERE Service.name = :name AND " +
                 "start_date <= :date AND (ServiceRegistry.end_date IS NULL OR ServiceRegistry.end_date > :date) LIMIT 1"
     )
-    abstract fun getServiceRegistry(name: String, date: LocalDate): ServiceRegistry?
+    abstract suspend fun getServiceRegistry(name: String, date: LocalDate): ServiceRegistry?
+
+    @Query("SELECT * FROM ServiceRegistry " +
+            "WHERE start_date <= :date AND (end_date IS NULL OR end_date > :date)")
+    abstract suspend fun getAllServiceRegistries(date: LocalDate): List<ServiceRegistry>
+
+    @Query("SELECT * FROM Service")
+    abstract suspend fun getServices(): List<Service>
 
     @Query("SELECT * FROM Service WHERE name = :serviceName")
-    abstract fun getService(serviceName: String): Service
+    abstract suspend fun getService(serviceName: String): Service
 
     @Query("SELECT * FROM Service WHERE id = :id")
-    abstract fun getService(id: Long): Service
+    abstract suspend fun getService(id: Long): Service
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(serviceRegistry: ServiceRegistry): Long

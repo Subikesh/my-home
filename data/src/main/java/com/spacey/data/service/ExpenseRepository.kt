@@ -7,21 +7,36 @@ import java.time.LocalDate
 
 class ExpenseRepository(private val serviceDao: ServiceDao) {
 
+    suspend fun getServices(): List<Service> {
+        return serviceDao.getServices()
+    }
+
     suspend fun getServices(date: LocalDate): List<ServiceEntity> {
         return ioScope {
             val serviceRegistries = serviceDao.getServicesOn(date)
             serviceRegistries.map {
-                val service = serviceDao.getService(it.serviceId)
-                ServiceEntity(
-                    service = service.name,
-                    inputType = service.type,
-                    serviceAmount = it.amount,
-                    startDate = it.startDate,
-                    defaultAmount = it.defaultAmount,
-                    weekDays = emptyList() // TODO: Create a separate entity to return and don't send unnecessary fields there?
-                )
+                it.toServiceEntity()
             }
         }
+    }
+
+    suspend fun getAllServices(date: LocalDate): List<ServiceEntity> {
+        return ioScope {
+            val serviceRegistries = serviceDao.getAllServiceRegistries(date)
+            serviceRegistries.map { it.toServiceEntity() }
+        }
+    }
+
+    private suspend fun ServiceRegistry.toServiceEntity(weekDays: List<DayOfWeek> = emptyList()): ServiceEntity {
+        val service = serviceDao.getService(serviceId)
+        return ServiceEntity(
+            service = service.name,
+            inputType = service.type,
+            serviceAmount = amount,
+            startDate = startDate,
+            defaultAmount = defaultAmount,
+            weekDays = weekDays
+        )
     }
 
     suspend fun insertExpense(serviceEntity: ServiceEntity) {
