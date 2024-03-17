@@ -25,6 +25,9 @@ abstract class ServiceDao {
     )
     abstract suspend fun getServiceRegistry(name: String, date: LocalDate): ServiceRegistry?
 
+    @Query("SELECT DateRecurrence.week_day FROM DateRecurrence WHERE service_registry_id = :serviceRegId")
+    abstract suspend fun getWeekDays(serviceRegId: Long): List<DayOfWeek>
+
     @Query("SELECT * FROM ServiceRegistry " +
             "WHERE start_date <= :date AND (end_date IS NULL OR end_date > :date)")
     abstract suspend fun getAllServiceRegistries(date: LocalDate): List<ServiceRegistry>

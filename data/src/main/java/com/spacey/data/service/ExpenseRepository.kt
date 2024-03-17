@@ -20,6 +20,15 @@ class ExpenseRepository(private val serviceDao: ServiceDao) {
         }
     }
 
+    suspend fun getServices(date: LocalDate, service: String): ServiceEntity? {
+        return ioScope {
+            serviceDao.getServiceRegistry(service, date)?.let { serviceRegistry ->
+                val weekDays = serviceDao.getWeekDays(serviceRegistry.id)
+                serviceRegistry.toServiceEntity(weekDays)
+            }
+        }
+    }
+
     suspend fun getAllServices(date: LocalDate): List<ServiceEntity> {
         return ioScope {
             val serviceRegistries = serviceDao.getAllServiceRegistries(date)
@@ -61,4 +70,6 @@ data class ServiceEntity(
     val startDate: LocalDate,
     val defaultAmount: Double,
     val weekDays: List<DayOfWeek>
-)
+) {
+    val defaultCount: Int = if (serviceAmount == 0.0) 0 else (defaultAmount / serviceAmount).toInt()
+}

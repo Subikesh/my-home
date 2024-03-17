@@ -1,18 +1,25 @@
 package com.spacey.myhome.form
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -22,65 +29,73 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.spacey.data.base.InputType
 import com.spacey.data.service.ServiceEntity
+import com.spacey.myhome.ScaffoldViewState
 import com.spacey.myhome.form.field.DateField
 import com.spacey.myhome.form.field.TextInputField
 import com.spacey.myhome.form.field.WeekDayPicker
-import com.spacey.myhome.ScaffoldViewState
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-@OptIn(ExperimentalStdlibApi::class)
 @Composable
 fun MyHomeFormScreen(
     date: LocalDate,
     navController: NavController,
     service: String,
-    amount: Double = 0.toDouble(),
-    defaultCount: Int = 1,
-    weekDays: List<DayOfWeek> = DayOfWeek.entries,
-    defaultType: InputType = InputType.COUNTER,
     viewModel: MyHomeFormViewModel = viewModel(),
     setScaffoldState: (ScaffoldViewState) -> Unit
 ) {
-    UI(
-        currentDate = date,
-        service = service,
-        defaultAmount = amount,
-        defaultWeekDays = weekDays,
-        defaultType = defaultType,
-        defaultCount = defaultCount,
-        setScaffoldState = setScaffoldState
-    ) { expense ->
-        viewModel.onEvent(MyHomeFormEvent.CreateExpense(expense))
-        navController.popBackStack()
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(service, date) {
+        viewModel.onEvent(MyHomeFormEvent.SetService(service, date))
+    }
+
+    when (uiState) {
+        is MyHomeFormUiState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+
+        else -> {
+            UI(
+                currentDate = date,
+                service = service,
+                serviceEntity = (uiState as? MyHomeFormUiState.Success)?.serviceEntity,
+                setScaffoldState = setScaffoldState
+            ) { expense ->
+                viewModel.onEvent(MyHomeFormEvent.CreateExpense(expense))
+                navController.popBackStack()
+            }
+        }
     }
 }
 
-//TODO handle for creating new expense and also editing existing ExpenseEntity
+@OptIn(ExperimentalStdlibApi::class)
 @Composable
 private fun UI(
     currentDate: LocalDate,
     service: String,
-    defaultAmount: Double,
-    defaultCount: Int,
-    defaultWeekDays: List<DayOfWeek>,
-    defaultType: InputType,
+    serviceEntity: ServiceEntity?,
     setScaffoldState: (ScaffoldViewState) -> Unit,
     onSubmit: (ServiceEntity) -> Unit
 ) {
     val haptics = LocalHapticFeedback.current
-    var startDate: LocalDate by remember { mutableStateOf(currentDate) }
+
+    var startDate: LocalDate by remember {
+        mutableStateOf(serviceEntity?.startDate ?: currentDate)
+    }
     var amount: String by remember {
-        mutableStateOf(defaultAmount.toString())
+        mutableStateOf((serviceEntity?.serviceAmount ?: 0.0).toString())
     }
     var count: String by remember {
-        mutableStateOf(defaultCount.toString())
+        mutableStateOf((serviceEntity?.defaultCount ?: 1).toString())
     }
-//    var inputTypeIndex: Int by remember {
-//        mutableIntStateOf(InputType.entries.indexOf(defaultType))
-//    }
+    var inputTypeIndex: Int by remember {
+        mutableIntStateOf(InputType.entries.indexOf(serviceEntity?.inputType ?: InputType.COUNTER))
+    }
     val weekDays = remember {
-        mutableStateListOf(*(defaultWeekDays.toTypedArray()))
+        mutableStateListOf(*((serviceEntity?.weekDays ?: DayOfWeek.entries).toTypedArray()))
     }
 
     setScaffoldState(ScaffoldViewState(fabIcon = {
@@ -90,7 +105,7 @@ private fun UI(
         onSubmit(
             ServiceEntity(
                 service = service,
-                inputType = defaultType, // TODO: Only counter done for now. support others
+                inputType = InputType.entries[inputTypeIndex],
                 serviceAmount = amount.toDouble(),
                 startDate = startDate,
                 defaultAmount = amount.toDouble() * count.toInt(),

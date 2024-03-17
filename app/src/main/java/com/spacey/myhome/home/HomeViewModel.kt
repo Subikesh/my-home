@@ -17,8 +17,7 @@ import java.time.LocalDate
 class HomeViewModel : BaseViewModel<HomeUiState, HomeEvent>() {
 
     private val _uiState = MutableStateFlow(HomeUiState(LocalDate.now(), emptyList(), emptyList(), emptyList()))
-    override val uiState: StateFlow<HomeUiState>
-        get() = _uiState
+    override val uiState: StateFlow<HomeUiState> = _uiState
 
     override fun onEvent(event: HomeEvent) {
         when (event) {
@@ -47,8 +46,7 @@ class HomeViewModel : BaseViewModel<HomeUiState, HomeEvent>() {
             // TODO: review amount/text inputType
             InputType.AMOUNT -> Field.Text(this.service, KeyboardType.Text, this.defaultAmount.toString())
             InputType.COUNTER -> {
-                val count = if (this.serviceAmount == 0.0) 0 else (this.defaultAmount / this.serviceAmount).toInt()
-                Field.Counter(this.service, count)
+                Field.Counter(this.service, this.defaultCount)
             }
             InputType.CHECKBOX -> {
                 val isChecked = this.defaultAmount > 0
