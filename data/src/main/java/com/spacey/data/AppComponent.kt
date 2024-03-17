@@ -7,7 +7,7 @@ import com.spacey.data.service.ExpenseRepository
 object AppComponent {
 
     private lateinit var appDatabase: AppDatabase
-    private val expenseDao by lazy { appDatabase.expenseDao() }
+    val expenseDao by lazy { appDatabase.serviceDao() }
 
     val expenseRepository by lazy { ExpenseRepository(expenseDao) }
 

@@ -22,10 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.spacey.data.base.InputType
-import com.spacey.data.service.NewExpenseEntity
-import com.spacey.data.service.Service
+import com.spacey.data.service.ServiceEntity
 import com.spacey.myhome.form.field.DateField
-import com.spacey.myhome.form.field.PicklistField
 import com.spacey.myhome.form.field.TextInputField
 import com.spacey.myhome.form.field.WeekDayPicker
 import com.spacey.myhome.ScaffoldViewState
@@ -38,7 +36,8 @@ fun MyHomeFormScreen(
     date: LocalDate,
     navController: NavController,
     service: String,
-    amount: Double = 0.0,
+    amount: Double = 0.toDouble(),
+    defaultCount: Int = 1,
     weekDays: List<DayOfWeek> = DayOfWeek.entries,
     defaultType: InputType = InputType.COUNTER,
     viewModel: MyHomeFormViewModel = viewModel(),
@@ -50,6 +49,7 @@ fun MyHomeFormScreen(
         defaultAmount = amount,
         defaultWeekDays = weekDays,
         defaultType = defaultType,
+        defaultCount = defaultCount,
         setScaffoldState = setScaffoldState
     ) { expense ->
         viewModel.onEvent(MyHomeFormEvent.CreateExpense(expense))
@@ -63,18 +63,19 @@ private fun UI(
     currentDate: LocalDate,
     service: String,
     defaultAmount: Double,
+    defaultCount: Int,
     defaultWeekDays: List<DayOfWeek>,
     defaultType: InputType,
     setScaffoldState: (ScaffoldViewState) -> Unit,
-    onSubmit: (NewExpenseEntity) -> Unit
+    onSubmit: (ServiceEntity) -> Unit
 ) {
     val haptics = LocalHapticFeedback.current
     var startDate: LocalDate by remember { mutableStateOf(currentDate) }
     var amount: String by remember {
         mutableStateOf(defaultAmount.toString())
     }
-    var inputTypeIndex: Int by remember {
-        mutableIntStateOf(InputType.entries.indexOf(defaultType))
+    var count: String by remember {
+        mutableStateOf(defaultCount.toString())
     }
     val weekDays = remember {
         mutableStateListOf(*(defaultWeekDays.toTypedArray()))
@@ -85,11 +86,12 @@ private fun UI(
     }, onFabClick = {
         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
         onSubmit(
-            NewExpenseEntity(
-                startDate = startDate,
-                service = Service(service, InputType.entries[inputTypeIndex]),
-                amount = amount.toDouble(), // TODO: Get default expense entry
+            ServiceEntity(
+                service = service,
+                inputType = defaultType, // TODO: Only counter done for now. support others
                 serviceAmount = amount.toDouble(),
+                startDate = startDate,
+                defaultAmount = amount.toDouble() * count.toInt(),
                 weekDays = weekDays
             )
         )
@@ -100,8 +102,11 @@ private fun UI(
 
         Text(text = "Add expense for $service", modifier = paddingModifier, style = MaterialTheme.typography.displaySmall)
 
-        TextInputField(label = "Amount", textValue = amount, keyboardType = KeyboardType.Decimal, modifier = paddingModifier) {
+        TextInputField(label = "Service amount", textValue = amount, keyboardType = KeyboardType.Decimal, modifier = paddingModifier) {
             amount = it
+        }
+        TextInputField(label = "Default count", textValue = count, keyboardType = KeyboardType.Number, modifier = paddingModifier) {
+            count = it
         }
         DateField(label = "Start date", modifier = paddingModifier, selectedDate = startDate) {
             startDate = it

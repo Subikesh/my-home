@@ -6,13 +6,18 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.spacey.data.AppComponent
 import com.spacey.data.service.DateRecurrence
 import com.spacey.data.service.Expense
-import com.spacey.data.service.ExpenseDao
+import com.spacey.data.service.ServiceDao
 import com.spacey.data.service.Service
 import com.spacey.data.service.ServiceRegistry
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -23,14 +28,16 @@ import java.time.format.DateTimeFormatter
         Service::class,
         ServiceRegistry::class,
         DateRecurrence::class
-    ], version = 4
+    ], version = 8
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun expenseDao(): ExpenseDao
+    abstract fun serviceDao(): ServiceDao
 
     companion object {
         @Volatile var instance: AppDatabase? = null
+
+        private val initialServices = listOf(Service("Milk", InputType.COUNTER), Service("Gas", InputType.CHECKBOX))
 
         @OptIn(InternalCoroutinesApi::class)
         fun getInstance(context: Context): AppDatabase = instance ?: synchronized(this) {
@@ -40,19 +47,19 @@ abstract class AppDatabase : RoomDatabase() {
         // TODO: Handle migration
         private fun createDatabase(context: Context) =
             Room.databaseBuilder(context, AppDatabase::class.java, "my-home.db")
-//                .addCallback(object : Callback() {
-//                    override fun onCreate(db: SupportSQLiteDatabase) {
-//                        super.onCreate(db)
-//                        CoroutineScope(Dispatchers.IO).launch {
-//                            // TODO: Initial pre-population
-//                        }
-//                    }
-//
-//                    override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
-//                        super.onDestructiveMigration(db)
-//                        onCreate(db)
-//                    }
-//                })
+                .addCallback(object : Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        super.onCreate(db)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            AppComponent.expenseDao.insertService(initialServices)
+                        }
+                    }
+
+                    override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                        super.onDestructiveMigration(db)
+                        onCreate(db)
+                    }
+                })
                 .fallbackToDestructiveMigration()
                 .build()
     }
@@ -70,10 +77,10 @@ enum class InputType(private val label: String) {
 
 class Converters {
     @TypeConverter
-    fun dateToString(date: LocalDate?): String? = date?.toString()
+    fun dateToString(date: LocalDate?): Int? = date?.format(DateTimeFormatter.BASIC_ISO_DATE)?.toInt()
 
     @TypeConverter
-    fun stringToDate(date: String?): LocalDate? = date?.let { LocalDate.parse(date, DateTimeFormatter.ISO_DATE) }
+    fun stringToDate(date: Int?): LocalDate? = date?.let { LocalDate.parse(date.toString(), DateTimeFormatter.BASIC_ISO_DATE) }
 
     @TypeConverter
     fun inputTypeToString(type: InputType?): String? = type?.name
