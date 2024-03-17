@@ -1,4 +1,4 @@
-package com.spacey.myhome.form
+package com.spacey.myhome.expenseform
 
 import androidx.lifecycle.viewModelScope
 import com.spacey.data.AppComponent

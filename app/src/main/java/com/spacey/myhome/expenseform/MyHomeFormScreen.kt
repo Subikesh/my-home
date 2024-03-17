@@ -1,4 +1,4 @@
-package com.spacey.myhome.form
+package com.spacey.myhome.expenseform
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,9 +29,9 @@ import androidx.navigation.NavController
 import com.spacey.data.base.InputType
 import com.spacey.data.service.ServiceEntity
 import com.spacey.myhome.ScaffoldViewState
-import com.spacey.myhome.form.field.DateField
-import com.spacey.myhome.form.field.TextInputField
-import com.spacey.myhome.form.field.WeekDayPicker
+import com.spacey.myhome.expenseform.field.DateField
+import com.spacey.myhome.expenseform.field.TextInputField
+import com.spacey.myhome.expenseform.field.WeekDayPicker
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -91,9 +90,6 @@ private fun UI(
     var count: String by remember {
         mutableStateOf((serviceEntity?.defaultCount ?: 1).toString())
     }
-    var inputTypeIndex: Int by remember {
-        mutableIntStateOf(InputType.entries.indexOf(serviceEntity?.inputType ?: InputType.COUNTER))
-    }
     val weekDays = remember {
         mutableStateListOf(*((serviceEntity?.weekDays ?: DayOfWeek.entries).toTypedArray()))
     }
@@ -105,7 +101,7 @@ private fun UI(
         onSubmit(
             ServiceEntity(
                 service = service,
-                inputType = InputType.entries[inputTypeIndex],
+                inputType = InputType.COUNTER, // inputType decided with service. No need to pass here
                 serviceAmount = amount.toDouble(),
                 startDate = startDate,
                 defaultAmount = amount.toDouble() * count.toInt(),
@@ -133,8 +129,5 @@ private fun UI(
         }) {
             weekDays.remove(it)
         }
-//        PicklistField(label = "Type", options = InputType.entries, modifier = paddingModifier, selectedIndex = inputTypeIndex) {
-//            inputTypeIndex = it
-//        }
     }
 }

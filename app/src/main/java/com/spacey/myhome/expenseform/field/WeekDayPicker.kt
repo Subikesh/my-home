@@ -1,4 +1,4 @@
-package com.spacey.myhome.form.field
+package com.spacey.myhome.expenseform.field
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import java.time.DayOfWeek
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 @Composable
 fun WeekDayPicker(
     label: String,

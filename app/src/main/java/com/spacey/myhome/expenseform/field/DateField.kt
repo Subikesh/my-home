@@ -1,4 +1,4 @@
-package com.spacey.myhome.form.field
+package com.spacey.myhome.expenseform.field
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
