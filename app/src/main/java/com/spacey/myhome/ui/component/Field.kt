@@ -120,10 +120,9 @@ fun Field<*>.CardView(modifier: Modifier = Modifier) {
         is Field.CheckBox -> {
             var checked by remember { mutableStateOf(false) }
             // TODO: secondary color wont work here. Set it as green
-            val color =
-                if (checked) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
+            val alpha = if (checked) 1f else 0.4f
             ElevatedCard(
-                colors = CardDefaults.cardColors(color),
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.secondaryContainer.copy(alpha)),
                 elevation = CardDefaults.elevatedCardElevation(4.dp),
                 onClick = {
                     checked = !checked
