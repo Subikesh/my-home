@@ -43,7 +43,7 @@ class ExpenseRepository(private val serviceDao: ServiceDao) {
         ioScope {
             val serviceId = serviceDao.getService(serviceEntity.service).id
             // TODO: give warning that later services will be deleted
-            serviceDao.deleteLaterServices(serviceEntity.startDate)
+            serviceDao.deleteLaterServices(serviceId, serviceEntity.startDate)
             val lastServiceRegistry = serviceDao.getServiceRegistry(serviceEntity.service, serviceEntity.startDate)
             if (lastServiceRegistry != null) {
                 serviceDao.updateEndDate(lastServiceRegistry.id, serviceEntity.startDate)

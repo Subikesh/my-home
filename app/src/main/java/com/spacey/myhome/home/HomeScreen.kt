@@ -145,40 +145,37 @@ private fun HomeBottomSheet(
     val haptics = LocalHapticFeedback.current
     if (isSheetOpen) {
         ModalBottomSheet(onDismissRequest = onSheetDismiss) {
-            Column(
-                Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 16.dp)
-            ) {
+            val bottomPadding = Modifier.padding(bottom = 16.dp)
+            Column(bottomPadding.padding(horizontal = 16.dp)) {
                 if (nonSubscribedExpenses.isNotEmpty()) {
-                    Text(text = "Services not subscribed for today", Modifier.padding(bottom = 16.dp))
+                    Text(text = "Services not subscribed for today", bottomPadding)
                     LazyVerticalStaggeredGrid(
                         columns = StaggeredGridCells.Fixed(2),
                         contentPadding = PaddingValues(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(24.dp),
-                        verticalItemSpacing = 24.dp
+                        verticalItemSpacing = 24.dp,
+                        modifier = bottomPadding
                     ) {
                         items(nonSubscribedExpenses) { field ->
                             field.CardView()
                         }
                     }
-                    Text(text = "Subscribe to more services", Modifier.padding(vertical = 16.dp))
-                    LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-                        items(servicesList) { service ->
-                            Card(modifier = Modifier.padding(8.dp), onClick = {
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onSheetDismiss()
-                                navigateToForm(service)
-                            }) {
-                                Text(service.name, Modifier.padding(16.dp))
-                            }
+                }
+                Text(text = "Subscribe to more services", bottomPadding)
+                LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+                    items(servicesList) { service ->
+                        Card(modifier = Modifier.padding(8.dp), onClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onSheetDismiss()
+                            navigateToForm(service)
+                        }) {
+                            Text(service.name, Modifier.padding(16.dp))
                         }
                     }
                 }
             }
         }
     }
-
 }
 
 @Preview
