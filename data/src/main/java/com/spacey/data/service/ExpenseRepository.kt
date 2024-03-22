@@ -12,20 +12,28 @@ class ExpenseRepository(private val serviceDao: ServiceDao) {
         return serviceDao.getServices()
     }
 
+    suspend fun updateExpense(serviceName: String, date: LocalDate, count: Int) {
+        return ioScope {
+            val service = serviceDao.getServiceRegistry(serviceName, date)!!
+            serviceDao.replaceExpense(Expense(service.id, date, service.serviceAmount * count))
+        }
+    }
+
     suspend fun getServices(date: LocalDate): List<ServiceEntity> {
         return ioScope {
             val serviceRegistries = serviceDao.getServicesOn(date)
             serviceRegistries.map {
-                it.toServiceEntity()
+                val expense = serviceDao.getExpense(it.id, date)
+                it.toServiceEntity(expense?.amount ?: it.defaultAmount)
             }
         }
     }
 
-    suspend fun getServices(date: LocalDate, service: String): ServiceEntity? {
+    suspend fun getService(date: LocalDate, service: String): ServiceEntity? {
         return ioScope {
             serviceDao.getServiceRegistry(service, date)?.let { serviceRegistry ->
                 val weekDays = serviceDao.getWeekDays(serviceRegistry.id)
-                serviceRegistry.toServiceEntity(weekDays)
+                serviceRegistry.toServiceEntity(weekDays = weekDays)
             }
         }
     }
@@ -48,14 +56,14 @@ class ExpenseRepository(private val serviceDao: ServiceDao) {
         }
     }
 
-    private suspend fun ServiceRegistry.toServiceEntity(weekDays: List<DayOfWeek> = emptyList()): ServiceEntity {
+    private suspend fun ServiceRegistry.toServiceEntity(amount: Double = defaultAmount, weekDays: List<DayOfWeek> = emptyList()): ServiceEntity {
         val service = serviceDao.getService(serviceId)
         return ServiceEntity(
             service = service.name,
             inputType = service.type,
-            serviceAmount = amount,
+            serviceAmount = serviceAmount,
             startDate = startDate,
-            defaultAmount = defaultAmount,
+            defaultAmount = amount,
             weekDays = weekDays
         )
     }

@@ -41,6 +41,12 @@ abstract class ServiceDao {
     @Query("SELECT * FROM Service WHERE id = :id")
     abstract suspend fun getService(id: Long): Service
 
+    @Query("SELECT * FROM Expense WHERE service_registry_id = :serviceRegId AND date = :date")
+    abstract suspend fun getExpense(serviceRegId: Long, date: LocalDate): Expense?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun replaceExpense(expense: Expense)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(serviceRegistry: ServiceRegistry): Long
 

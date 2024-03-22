@@ -21,7 +21,7 @@ class MyHomeFormViewModel : BaseViewModel<MyHomeFormUiState, MyHomeFormEvent>() 
         when (event) {
             is MyHomeFormEvent.SetService -> {
                 viewModelScope.launch {
-                    _uiState.value = repository.getServices(event.date, event.service)?.let {
+                    _uiState.value = repository.getService(event.date, event.service)?.let {
                         MyHomeFormUiState.Success(it)
                     } ?: MyHomeFormUiState.Failure
                 }

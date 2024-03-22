@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,12 +61,16 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewMode
         expenseList = uiState.expenseList,
         nonSubscribedExpenses = uiState.notSubscribedExpenses,
         servicesList = uiState.servicesList,
+        isExpenseLoading = uiState.isExpenseLoading,
         setScaffoldState = setScaffoldState,
         navigateToForm = {
             navController.navigateTo(NavRoute.ExpenseForm(uiState.selectedDate, it.name))
         },
         navigateToServiceForm = {
             navController.navigateTo(NavRoute.ServiceForm(it))
+        },
+        onExpenseUpdate = { field, value ->
+            viewModel.onEvent(HomeEvent.UpdateExpense(field, value))
         }
     ) {
         viewModel.onEvent(HomeEvent.SetDate(it))
@@ -77,9 +83,11 @@ private fun UI(
     expenseList: List<Field<*>>,
     nonSubscribedExpenses: List<Field<*>>,
     servicesList: List<Service>,
+    isExpenseLoading: Boolean,
     setScaffoldState: (ScaffoldViewState) -> Unit,
     navigateToForm: (Service) -> Unit,
     navigateToServiceForm: (Service?) -> Unit,
+    onExpenseUpdate: (Field<*>, Int) -> Unit,
     onDateChanged: (LocalDate) -> Unit
 ) {
     var date: LocalDate by remember { mutableStateOf(selectedDate) }
@@ -89,11 +97,24 @@ private fun UI(
     }
     val haptics = LocalHapticFeedback.current
 
+    val fieldChangeList = remember {
+        mutableStateMapOf<Field<*>, Int>()
+    }
+
     setScaffoldState(ScaffoldViewState(fabIcon = {
-        Icon(Icons.Default.Add, contentDescription = "Form")
+        if (isExpenseLoading || fieldChangeList.size > 0) {
+            Icon(Icons.Default.Done, contentDescription = "Update submit")
+        } else {
+            Icon(Icons.Default.Add, contentDescription = "Form")
+        }
     }, onFabClick = {
-        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-        isBottomSheetOpen = true
+        if (isExpenseLoading || fieldChangeList.size > 0) {
+            fieldChangeList.forEach { (field, value) -> onExpenseUpdate(field, value) }
+            fieldChangeList.clear()
+        } else {
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+            isBottomSheetOpen = true
+        }
     }))
 
     HomeBottomSheet(isBottomSheetOpen, nonSubscribedExpenses, servicesList, navigateToForm, navigateToServiceForm) {
@@ -134,7 +155,13 @@ private fun UI(
         }
 
         items(expenseList) { field ->
-            field.CardView()
+            field.CardView {
+                if (it != field.value) {
+                    fieldChangeList[field] = it
+                } else {
+                    fieldChangeList.remove(field)
+                }
+            }
         }
     }
 }

@@ -74,7 +74,7 @@ sealed class Field<T>(open val label: String, var value: T) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Field<*>.CardView(modifier: Modifier = Modifier) {
+fun Field<*>.CardView(modifier: Modifier = Modifier, onChange: (Int) -> Unit = {}) {
     if (!isVisible.value) return
 
     val haptic = LocalHapticFeedback.current
@@ -99,6 +99,7 @@ fun Field<*>.CardView(modifier: Modifier = Modifier) {
                 ) {
                     IconButton(onClick = {
                         count--
+                        onChange(count)
                         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     }, enabled = count > 0, modifier = Modifier.weight(1f)) {
                         Icon(Icons.Default.Remove, "Reduce count")
@@ -109,6 +110,7 @@ fun Field<*>.CardView(modifier: Modifier = Modifier) {
                     )
                     IconButton(onClick = {
                         count++
+                        onChange(count)
                         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     }, modifier = Modifier.weight(1f)) {
                         Icon(Icons.Default.Add, "Increase count")
@@ -126,6 +128,7 @@ fun Field<*>.CardView(modifier: Modifier = Modifier) {
                 elevation = CardDefaults.elevatedCardElevation(4.dp),
                 onClick = {
                     checked = !checked
+                    onChange(if (checked) 1 else 0)
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 }
             ) {

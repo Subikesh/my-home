@@ -38,7 +38,7 @@ data class Expense(
 @Entity(foreignKeys = [ForeignKey(Service::class, ["id"], [ServiceRegistryCol.SERVICE_ID])])
 data class ServiceRegistry(
     @ColumnInfo(ServiceRegistryCol.SERVICE_ID) val serviceId: Long,
-    @ColumnInfo(ServiceRegistryCol.AMOUNT) val amount: Double,
+    @ColumnInfo(ServiceRegistryCol.AMOUNT) val serviceAmount: Double,
     @ColumnInfo(ServiceRegistryCol.DEFAULT_AMOUNT) val defaultAmount: Double,
     @ColumnInfo(ServiceRegistryCol.START_DATE) val startDate: LocalDate,
     @ColumnInfo(ServiceRegistryCol.END_DATE) val endDate: LocalDate? = null,

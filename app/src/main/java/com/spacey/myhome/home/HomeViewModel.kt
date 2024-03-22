@@ -16,7 +16,7 @@ import java.time.LocalDate
 
 class HomeViewModel : BaseViewModel<HomeUiState, HomeEvent>() {
 
-    private val _uiState = MutableStateFlow(HomeUiState(LocalDate.now(), emptyList(), emptyList(), emptyList()))
+    private val _uiState = MutableStateFlow(HomeUiState(LocalDate.now(), emptyList(), emptyList(), emptyList(), false))
     override val uiState: StateFlow<HomeUiState> = _uiState
 
     override fun onEvent(event: HomeEvent) {
@@ -24,8 +24,15 @@ class HomeViewModel : BaseViewModel<HomeUiState, HomeEvent>() {
             is HomeEvent.SetDate -> {
                 viewModelScope.launch {
                     refreshExpenses(event.date)
+                    _uiState.value = _uiState.value.copy(selectedDate = event.date, isExpenseLoading = false)
                 }
-                _uiState.value = _uiState.value.copy(selectedDate = event.date)
+            }
+            is HomeEvent.UpdateExpense -> {
+                viewModelScope.launch {
+                    _uiState.value = _uiState.value.copy(isExpenseLoading = true)
+                    repository.updateExpense(event.field.label, uiState.value.selectedDate, event.value)
+                    _uiState.value = _uiState.value.copy(isExpenseLoading = false)
+                }
             }
         }
     }
@@ -60,9 +67,11 @@ data class HomeUiState(
     val selectedDate: LocalDate,
     val expenseList: List<Field<*>>,
     val notSubscribedExpenses: List<Field<*>>,
-    val servicesList: List<Service>
+    val servicesList: List<Service>,
+    val isExpenseLoading: Boolean
 )
 
 sealed class HomeEvent {
     data class SetDate(val date: LocalDate) : HomeEvent()
+    data class UpdateExpense(val field: Field<*>, val value: Int) : HomeEvent()
 }
