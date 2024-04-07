@@ -8,14 +8,14 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Dao
-abstract class ServiceDao {
+interface ServiceDao {
 
     @Query(
         "SELECT ServiceRegistry.* FROM ServiceRegistry JOIN DateRecurrence " +
                 "ON ServiceRegistry.id = DateRecurrence.service_registry_id " +
             "WHERE week_day = :weekDay AND " +
             "start_date <= :date AND (end_date IS NULL OR end_date > :date)")
-    abstract suspend fun getServicesOn(date: LocalDate, weekDay: DayOfWeek = date.dayOfWeek): List<ServiceRegistry>
+    suspend fun getServicesOn(date: LocalDate, weekDay: DayOfWeek = date.dayOfWeek): List<ServiceRegistry>
 
     @Query(
         "SELECT ServiceRegistry.* FROM " +
@@ -23,42 +23,42 @@ abstract class ServiceDao {
                 "WHERE Service.name = :name AND " +
                 "start_date <= :date AND (ServiceRegistry.end_date IS NULL OR ServiceRegistry.end_date > :date) LIMIT 1"
     )
-    abstract suspend fun getServiceRegistry(name: String, date: LocalDate): ServiceRegistry?
+    suspend fun getServiceRegistry(name: String, date: LocalDate): ServiceRegistry?
 
     @Query("SELECT DateRecurrence.week_day FROM DateRecurrence WHERE service_registry_id = :serviceRegId")
-    abstract suspend fun getWeekDays(serviceRegId: Long): List<DayOfWeek>
+    suspend fun getWeekDays(serviceRegId: Long): List<DayOfWeek>
 
     @Query("SELECT * FROM ServiceRegistry " +
             "WHERE start_date <= :date AND (end_date IS NULL OR end_date > :date)")
-    abstract suspend fun getAllServiceRegistries(date: LocalDate): List<ServiceRegistry>
+    suspend fun getAllServiceRegistries(date: LocalDate): List<ServiceRegistry>
 
     @Query("SELECT * FROM Service")
-    abstract suspend fun getServices(): List<Service>
+    suspend fun getServices(): List<Service>
 
     @Query("SELECT * FROM Service WHERE name = :serviceName")
-    abstract suspend fun getService(serviceName: String): Service
+    suspend fun getService(serviceName: String): Service
 
     @Query("SELECT * FROM Service WHERE id = :id")
-    abstract suspend fun getService(id: Long): Service
+    suspend fun getService(id: Long): Service
 
     @Query("SELECT * FROM Expense WHERE service_registry_id = :serviceRegId AND date = :date")
-    abstract suspend fun getExpense(serviceRegId: Long, date: LocalDate): Expense?
+    suspend fun getExpense(serviceRegId: Long, date: LocalDate): Expense?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun replaceExpense(expense: Expense)
+    suspend fun replaceExpense(expense: Expense)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insert(serviceRegistry: ServiceRegistry): Long
+    suspend fun insert(serviceRegistry: ServiceRegistry): Long
 
     @Query("UPDATE ServiceRegistry SET end_date = :endDate WHERE id = :serviceRegId")
-    abstract suspend fun updateEndDate(serviceRegId: Long, endDate: LocalDate)
+    suspend fun updateEndDate(serviceRegId: Long, endDate: LocalDate)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract suspend fun insert(dateRecurrence: List<DateRecurrence>)
+    suspend fun insert(dateRecurrence: List<DateRecurrence>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertService(services: List<Service>)
+    suspend fun insertService(services: List<Service>)
 
     @Query("DELETE FROM ServiceRegistry WHERE service_id == :serviceId AND start_date >= :date")
-    abstract suspend fun deleteLaterServices(serviceId: Long, date: LocalDate)
+    suspend fun deleteLaterServices(serviceId: Long, date: LocalDate)
 }

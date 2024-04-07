@@ -1,6 +1,7 @@
 package com.spacey.data.base
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.Executors
 
 @Database(
     entities = [
@@ -35,7 +37,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun serviceDao(): ServiceDao
 
     companion object {
-        @Volatile var instance: AppDatabase? = null
+        @Volatile
+        var instance: AppDatabase? = null
 
         private val initialServices = listOf(Service("Milk", InputType.COUNTER), Service("Gas", InputType.CHECKBOX))
 
@@ -47,6 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
         // TODO: Handle migration
         private fun createDatabase(context: Context) =
             Room.databaseBuilder(context, AppDatabase::class.java, "my-home.db")
+                .setQueryCallback({ query, args -> Log.d("Query", "DB Query: $query, $args") }, Executors.newSingleThreadExecutor())
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
