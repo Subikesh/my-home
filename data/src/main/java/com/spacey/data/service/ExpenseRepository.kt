@@ -19,7 +19,7 @@ class ExpenseRepository(private val serviceDao: ServiceDao) {
         }
     }
 
-    suspend fun getServices(date: LocalDate): List<ServiceEntity> {
+    suspend fun getServicesOn(date: LocalDate): List<ServiceEntity> {
         return ioScope {
             val serviceRegistries = serviceDao.getServicesOn(date)
             serviceRegistries.map {

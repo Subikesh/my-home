@@ -70,6 +70,24 @@ sealed class Field<T>(open val label: String, var value: T) {
             is WeekDayPicker -> "Field: $label is $value"
         }
     }
+
+    // TODO: As values are stored as int, using this.
+    @Deprecated("Use values as some meaning type other than int")
+    val intValue: Int
+        get() = when (this) {
+            is Counter -> value
+            is CheckBox -> if (value) 1 else 0
+            else -> 0
+        }
+
+    fun copy(newLabel: String = label, newValue: Int = intValue): Field<*> {
+        if (newLabel == label && newValue == intValue) return this
+        return when (this) {
+            is CheckBox -> CheckBox(newLabel, newValue != 0)
+            is Counter -> Counter(newLabel, newValue)
+            else -> this
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -130,7 +148,7 @@ fun Field<*>.CardView(modifier: Modifier = Modifier, onChange: (Int) -> Unit = {
                     checked = !checked
                     onChange(if (checked) 1 else 0)
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                }
+                }, modifier = modifier
             ) {
                 Text(
                     text = this@CardView.label,

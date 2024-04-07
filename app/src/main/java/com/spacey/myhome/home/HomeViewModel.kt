@@ -9,6 +9,7 @@ import com.spacey.data.service.Service
 import com.spacey.data.service.ServiceEntity
 import com.spacey.myhome.base.BaseViewModel
 import com.spacey.myhome.ui.component.Field
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,8 +31,16 @@ class HomeViewModel : BaseViewModel<HomeUiState, HomeEvent>() {
             is HomeEvent.UpdateExpense -> {
                 viewModelScope.launch {
                     _uiState.value = _uiState.value.copy(isExpenseLoading = true)
+                    // TODO: Remove loading simulation
+                    delay(1000)
                     repository.updateExpense(event.field.label, uiState.value.selectedDate, event.value)
-                    _uiState.value = _uiState.value.copy(isExpenseLoading = false)
+                    val oldExpenses = uiState.value.expenseList.toMutableList()
+                    oldExpenses.replaceAll { oldField ->
+                        if (oldField.label == event.field.label) {
+                            event.field.copy(newValue = event.value)
+                        } else oldField
+                    }
+                    _uiState.value = _uiState.value.copy(expenseList = oldExpenses, isExpenseLoading = false)
                 }
             }
         }
@@ -40,7 +49,7 @@ class HomeViewModel : BaseViewModel<HomeUiState, HomeEvent>() {
     private val repository: ExpenseRepository = AppComponent.expenseRepository
 
     private suspend fun refreshExpenses(date: LocalDate) {
-        val expenses = repository.getServices(date)
+        val expenses = repository.getServicesOn(date)
         val fields: List<Field<*>> = expenses.map { it.toField() }
         val nonSubscribedServices = repository.getAllServices(date).filterNot { it.service in expenses.map { expense -> expense.service } }
         val nonSubscribedFields = nonSubscribedServices.map { it.copy(defaultAmount = 0.0).toField() }
