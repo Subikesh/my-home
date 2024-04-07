@@ -19,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
@@ -69,10 +68,6 @@ abstract class AppDatabase : RoomDatabase() {
     }
 }
 
-object DBConstant {
-    const val SEPARATOR = "^_^"
-}
-
 enum class InputType(private val label: String) {
     AMOUNT("Amount"), COUNTER("Counter"), CHECKBOX("Checkbox");
 
@@ -91,28 +86,4 @@ class Converters {
 
     @TypeConverter
     fun stringToInputType(type: String?): InputType? = type?.let { InputType.valueOf(it) }
-
-    @TypeConverter
-    fun weekDaysToString(weekDays: List<DayOfWeek>): String = weekDays.joinToString(DBConstant.SEPARATOR) { it.value.toString() }
-
-    @TypeConverter
-    fun stringToWeekDays(weekDays: String): List<DayOfWeek> = weekDays.split(DBConstant.SEPARATOR).map { DayOfWeek.of(it.toInt()) }
-
-//    @TypeConverter
-//    fun recurrenceToString(recurrence: RecurrenceType?): String? = recurrence?.asString()
-//
-//    @TypeConverter
-//    fun stringToRecurrence(recurrence: String?): RecurrenceType? {
-//        if (recurrence == null) return null
-//        val values = recurrence.split(DBConstant.SEPARATOR)
-//        val (type, value) = values.first() to values.subList(1, values.size)
-//        return when (type) {
-//            RecurrenceType.THIS_MONTH -> RecurrenceType.OnlyThisMonth
-//            RecurrenceType.WEEKLY -> RecurrenceType.Weekly(value.map { DayOfWeek.valueOf(it) }.toSet())
-//            RecurrenceType.MONTHLY -> RecurrenceType.Monthly(value.map { Month.valueOf(it) }.toSet())
-//            RecurrenceType.EVERY_DAY -> RecurrenceType.EveryDay
-//            RecurrenceType.EVERY_MONTH -> RecurrenceType.EveryMonth
-//            else -> null
-//        }
-//    }
 }
