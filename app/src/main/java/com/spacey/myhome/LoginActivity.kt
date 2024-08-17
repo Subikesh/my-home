@@ -7,13 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.spacey.myhome.auth.AuthViewModel
+import com.spacey.myhome.data.network.RetrofitService
 import com.spacey.myhome.databinding.ActivityMainBinding
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val authViewModel: AuthViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels { AuthViewModel.Factory(RetrofitService().authApiService) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +30,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.loginButton.setOnClickListener {
-            authViewModel.login(binding.loginText.text.toString(), binding.loginUserPassword.text.toString())
+            authViewModel.login(binding.loginUserText.text.toString(), binding.loginUserPassword.text.toString())
         }
     }
 }

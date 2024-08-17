@@ -1,10 +1,8 @@
 package com.spacey.myhome.data.network
 
-import com.google.gson.JsonObject
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.POST
 
 class RetrofitService {
 
@@ -16,11 +14,11 @@ class RetrofitService {
             .build()
     }
 
-    private val authApiService by lazy {
+    val authApiService: AuthApiService by lazy {
         retrofit.create(AuthApiService::class.java)
     }
 
     companion object {
-        private const val BASE_URL = "http://127.0.0.1:8000/api/"
+        private const val BASE_URL = "http://10.0.2.2:8000/api/"
     }
 }
