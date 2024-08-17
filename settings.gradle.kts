@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MyHome_new"
+rootProject.name = "MyHome"
 include(":app")
 include(":data")

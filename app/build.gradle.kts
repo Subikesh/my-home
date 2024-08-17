@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.spacey.myhome_new"
+    namespace = "com.spacey.myhome"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.spacey.myhome_new"
+        applicationId = "com.spacey.myhome"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -42,6 +42,14 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.gson)
+    // Livedata
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    implementation(project(":data"))
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
