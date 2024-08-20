@@ -49,6 +49,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     implementation(project(":data"))
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
