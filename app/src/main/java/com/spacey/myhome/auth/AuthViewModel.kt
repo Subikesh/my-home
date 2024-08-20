@@ -1,15 +1,10 @@
 package com.spacey.myhome.auth
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.spacey.myhome.data.network.AuthApiService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AuthViewModel(private val service: AuthApiService) : ViewModel() {
 
@@ -17,6 +12,8 @@ class AuthViewModel(private val service: AuthApiService) : ViewModel() {
     val isAuthenticated: LiveData<AuthState> = _isAuthenticated
 
     fun login(userName: String, password: String) {
+        _isAuthenticated.value = AuthState.SUCCESS
+        /*
         viewModelScope.launch {
             _isAuthenticated.value = AuthState.LOADING
             try {
@@ -29,7 +26,7 @@ class AuthViewModel(private val service: AuthApiService) : ViewModel() {
                 e.printStackTrace()
                 _isAuthenticated.value = AuthState.FAILURE
             }
-        }
+        }*/
     }
 
     class Factory(private val authApiService: AuthApiService) : ViewModelProvider.Factory {

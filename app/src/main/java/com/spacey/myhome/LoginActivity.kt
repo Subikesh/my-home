@@ -9,18 +9,18 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.spacey.myhome.auth.AuthViewModel
 import com.spacey.myhome.data.network.RetrofitService
-import com.spacey.myhome.databinding.ActivityMainBinding
+import com.spacey.myhome.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityLoginBinding
 
     private val authViewModel: AuthViewModel by viewModels { AuthViewModel.Factory(RetrofitService().authApiService) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
@@ -40,7 +40,10 @@ class LoginActivity : AppCompatActivity() {
                 binding.loginButton.isEnabled = true
             }
             when (it) {
-                AuthViewModel.AuthState.SUCCESS -> startActivity(Intent(this, HomeActivity::class.java))
+                AuthViewModel.AuthState.SUCCESS -> {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    finish()
+                }
                 AuthViewModel.AuthState.FAILURE -> Toast.makeText(this, "Login credentials incorrect!", Toast.LENGTH_SHORT).show()
                 else -> {}
             }
