@@ -2,6 +2,7 @@ package com.spacey.myhome
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -34,11 +35,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         authViewModel.isAuthenticated.observe(this) {
-            if (it == AuthViewModel.AuthState.LOADING) {
-                binding.loginButton.isEnabled = false
-            } else {
-                binding.loginButton.isEnabled = true
-            }
+            showLoading(it == AuthViewModel.AuthState.LOADING)
             when (it) {
                 AuthViewModel.AuthState.SUCCESS -> {
                     startActivity(Intent(this, HomeActivity::class.java))
@@ -47,6 +44,18 @@ class LoginActivity : AppCompatActivity() {
                 AuthViewModel.AuthState.FAILURE -> Toast.makeText(this, "Login credentials incorrect!", Toast.LENGTH_SHORT).show()
                 else -> {}
             }
+        }
+    }
+
+    private fun showLoading(doShow: Boolean) {
+        if (doShow) {
+            binding.progress.visibility = View.VISIBLE
+            binding.loginCardView.alpha = 0.5f
+            binding.loginCardView.isEnabled = false
+        } else {
+            binding.progress.visibility = View.GONE
+            binding.loginCardView.alpha = 1f
+            binding.loginCardView.isEnabled = true
         }
     }
 }
