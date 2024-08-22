@@ -18,13 +18,7 @@ class AuthViewModel(private val service: AuthApiService) : ViewModel() {
     val isAuthenticated: LiveData<AuthState> = _isAuthenticated
 
     fun login(userName: String, password: String) {
-        _isAuthenticated.value = AuthState.LOADING
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                delay(2.seconds)
-            }
-            _isAuthenticated.value = AuthState.SUCCESS
-        }
+        _isAuthenticated.value = AuthState.SUCCESS
         /*
         viewModelScope.launch {
             _isAuthenticated.value = AuthState.LOADING
