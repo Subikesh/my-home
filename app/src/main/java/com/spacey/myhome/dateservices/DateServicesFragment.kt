@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.spacey.myhome.HomeActivity
 import com.spacey.myhome.R
+import com.spacey.myhome.constants.CommonConstants
 import com.spacey.myhome.databinding.FragmentDateServicesBinding
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -47,7 +48,7 @@ class DateServicesFragment : Fragment() {
             (activity as HomeActivity).setToolbarTitle(if (date == LocalDate.now()) {
                 "Today"
             } else {
-                date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+                date.format(DateTimeFormatter.ofPattern(CommonConstants.HOME_DATE_PATTERN))
             })
         }
 
