@@ -1,19 +1,17 @@
 package com.spacey.myhome.dateservices
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.spacey.myhome.HomeActivity
 import com.spacey.myhome.R
-import com.spacey.myhome.util.CommonConstants
 import com.spacey.myhome.databinding.FragmentDateServicesBinding
+import com.spacey.myhome.util.CommonConstants
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -24,13 +22,8 @@ class DateServicesFragment : Fragment() {
 
     private val viewModel: DateServicesViewModel by viewModels()
 
-    private val dates = (1..100).map {
-        val date = LocalDate.ofYearDay(2022, it)
-        DateHomeItem(date, it == 5)
-    }
-
-    private val dateAdapter = DatePickerRecyclerAdapter(dates) {
-        viewModel.selectDate(it)
+    private val dates = (1..365).map {
+        LocalDate.ofYearDay(2024, it)
     }
 
     override fun onCreateView(
@@ -39,10 +32,15 @@ class DateServicesFragment : Fragment() {
     ): View {
         _binding = FragmentDateServicesBinding.inflate(inflater, container, false)
 
-        binding.dateRecycler.run {
+        val defaultDate = viewModel.selectedDate.value ?: viewModel.defaultDate
+        val dateAdapter = DatePickerRecyclerAdapter(dates, defaultDate) {
+            viewModel.selectDate(it)
+        }
+
+        with(binding.dateRecycler) {
             adapter = dateAdapter
             layoutManager = LinearLayoutManager(this@DateServicesFragment.context, LinearLayoutManager.HORIZONTAL, false)
-            scrollToPosition(50)
+            dateAdapter.submitList(dates)
         }
 
         viewModel.selectedDate.observe(viewLifecycleOwner) { date ->
@@ -62,6 +60,8 @@ class DateServicesFragment : Fragment() {
         binding.buttonFirst.setOnClickListener {
             findNavController().navigate(R.id.action_home_to_services)
         }
+
+        binding.dateRecycler.scrollToPosition(dates.indexOfFirst { it == viewModel.selectedDate.value })
     }
 
     override fun onDestroyView() {
