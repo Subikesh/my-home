@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
@@ -21,9 +22,7 @@ class DateServicesFragment : Fragment() {
     private var _binding: FragmentDateServicesBinding? = null
     private val binding get() = _binding!!
 
-    // TODO: Move to VM
-    private val _selectedDate: MutableLiveData<LocalDate> = MutableLiveData(LocalDate.ofYearDay(2022, 5))
-    val selectedDate: LiveData<LocalDate> = _selectedDate
+    private val viewModel: DateServicesViewModel by viewModels()
 
     private val dates = (1..100).map {
         val date = LocalDate.ofYearDay(2022, it)
@@ -31,7 +30,7 @@ class DateServicesFragment : Fragment() {
     }
 
     private val dateAdapter = DatePickerRecyclerAdapter(dates) {
-        _selectedDate.value = it
+        viewModel.selectDate(it)
     }
 
     override fun onCreateView(
@@ -46,7 +45,7 @@ class DateServicesFragment : Fragment() {
             scrollToPosition(50)
         }
 
-        selectedDate.observe(viewLifecycleOwner) { date ->
+        viewModel.selectedDate.observe(viewLifecycleOwner) { date ->
             (activity as HomeActivity).setToolbarTitle(if (date == LocalDate.now()) {
                 "Today"
             } else {
