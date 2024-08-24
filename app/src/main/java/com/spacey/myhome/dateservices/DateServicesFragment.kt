@@ -11,7 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.spacey.myhome.HomeActivity
 import com.spacey.myhome.R
-import com.spacey.myhome.constants.CommonConstants
+import com.spacey.myhome.util.CommonConstants
 import com.spacey.myhome.databinding.FragmentDateServicesBinding
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -30,7 +30,9 @@ class DateServicesFragment : Fragment() {
         DateHomeItem(date, it == 5)
     }
 
-    private val dateAdapter = DatePickerRecyclerAdapter(dates)
+    private val dateAdapter = DatePickerRecyclerAdapter(dates) {
+        _selectedDate.value = it
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,18 +52,6 @@ class DateServicesFragment : Fragment() {
             } else {
                 date.format(DateTimeFormatter.ofPattern(CommonConstants.HOME_DATE_PATTERN))
             })
-        }
-
-        dateAdapter.setOnClickListener { selected ->
-            for (date in dates) {
-                if (selectedDate.value == date.date) {
-                    date.isSelected = false
-                } else if (date.date == selected) {
-                    date.isSelected = true
-                }
-            }
-            _selectedDate.value = selected
-            dateAdapter.submitList(dates)
         }
 
         return binding.root

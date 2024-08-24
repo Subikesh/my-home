@@ -6,18 +6,20 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.R
 import com.spacey.myhome.databinding.DateHolderBinding
+import com.spacey.myhome.util.resolveAttribute
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 
-class DatePickerRecyclerAdapter(private val dates: List<DateHomeItem>) : ListAdapter<DateHomeItem, DatePickerRecyclerAdapter.DateHolder>(DiffCallback()) {
+class DatePickerRecyclerAdapter(
+    private val dates: List<DateHomeItem>,
+    defaultDate: LocalDate = LocalDate.now(),
+    private val onClick: (LocalDate) -> Unit
+) : ListAdapter<DateHomeItem, DatePickerRecyclerAdapter.DateHolder>(DiffCallback()) {
 
-    private var onClickListener: (LocalDate) -> Unit = {}
-
-    fun setOnClickListener(onClick: (LocalDate) -> Unit) {
-        onClickListener = onClick
-    }
+    private var selectedDate: LocalDate = defaultDate
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DateHolder {
         val inflator = LayoutInflater.from(parent.context)
@@ -30,7 +32,17 @@ class DatePickerRecyclerAdapter(private val dates: List<DateHomeItem>) : ListAda
     }
 
     override fun onBindViewHolder(holder: DateHolder, position: Int) {
-        holder.bind(dates[position], onClickListener)
+        val newDate = dates[holder.adapterPosition]
+        holder.bind(newDate, newDate.date == selectedDate)
+        holder.itemView.setOnClickListener {
+            if (selectedDate != newDate.date) {
+                val lastSelected = selectedDate
+                selectedDate = newDate.date
+                notifyItemChanged(dates.indexOfFirst { it.date == lastSelected })
+                notifyItemChanged(dates.indexOfFirst { it.date == newDate.date })
+            }
+            onClick(newDate.date)
+        }
     }
 
     class DiffCallback : DiffUtil.ItemCallback<DateHomeItem>() {
@@ -45,13 +57,23 @@ class DatePickerRecyclerAdapter(private val dates: List<DateHomeItem>) : ListAda
 
     class DateHolder(private val binding: DateHolderBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(date: DateHomeItem, onClick: (LocalDate) -> Unit) {
-            if (date.isSelected) {
-                binding.root.setBackgroundColor(Color.CYAN)
-            }
+        fun bind(date: DateHomeItem, isSelected: Boolean) {
             binding.date.text = date.date.dayOfMonth.toString()
             binding.dayOfWeek.text = date.date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ROOT)
-            binding.root.setOnClickListener { onClick(date.date) }
+            with(binding.root) {
+                if (isSelected) {
+                    setBackgroundColor(resolveAttribute(R.attr.colorSecondary))
+                    setTextColor(resolveAttribute(R.attr.colorOnSecondary))
+                } else {
+                    setBackgroundColor(Color.TRANSPARENT)
+                    setTextColor(resolveAttribute(R.attr.colorOnBackground))
+                }
+            }
+        }
+
+        private fun setTextColor(color: Int) {
+            binding.date.setTextColor(color)
+            binding.dayOfWeek.setTextColor(color)
         }
     }
 }
