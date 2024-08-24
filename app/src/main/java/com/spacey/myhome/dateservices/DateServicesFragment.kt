@@ -9,9 +9,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.spacey.myhome.HomeActivity
 import com.spacey.myhome.R
 import com.spacey.myhome.databinding.FragmentDateServicesBinding
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class DateServicesFragment : Fragment() {
 
@@ -39,6 +41,14 @@ class DateServicesFragment : Fragment() {
             adapter = dateAdapter
             layoutManager = LinearLayoutManager(this@DateServicesFragment.context, LinearLayoutManager.HORIZONTAL, false)
             scrollToPosition(50)
+        }
+
+        selectedDate.observe(viewLifecycleOwner) { date ->
+            (activity as HomeActivity).setToolbarTitle(if (date == LocalDate.now()) {
+                "Today"
+            } else {
+                date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+            })
         }
 
         dateAdapter.setOnClickListener { selected ->

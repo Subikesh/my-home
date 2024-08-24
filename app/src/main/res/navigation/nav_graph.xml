@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/home"
         android:name="com.spacey.myhome.dateservices.DateServicesFragment"
-        android:label="@string/first_fragment_label"
+        android:label=""
         tools:layout="@layout/fragment_date_services">
 
         <action

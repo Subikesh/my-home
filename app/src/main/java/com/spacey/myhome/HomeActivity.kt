@@ -36,6 +36,10 @@ class HomeActivity : AppCompatActivity() {
         binding.bottomNavigation.setupWithNavController(navController)
     }
 
+    fun setToolbarTitle(title: String) {
+        binding.toolbar.title = title
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_home)
         return navController.navigateUp(appBarConfiguration)
