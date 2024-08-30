@@ -22,10 +22,6 @@ class DateServicesFragment : Fragment() {
 
     private val viewModel: DateServicesViewModel by viewModels()
 
-    private val dates = (1..365).map {
-        LocalDate.ofYearDay(2024, it)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -33,14 +29,17 @@ class DateServicesFragment : Fragment() {
         _binding = FragmentDateServicesBinding.inflate(inflater, container, false)
 
         val defaultDate = viewModel.selectedDate.value ?: viewModel.defaultDate
-        val dateAdapter = DatePickerRecyclerAdapter(dates, defaultDate) {
+        val dateAdapter = DatePickerRecyclerAdapter(defaultDate) {
             viewModel.selectDate(it)
         }
 
         with(binding.dateRecycler) {
             adapter = dateAdapter
             layoutManager = LinearLayoutManager(this@DateServicesFragment.context, LinearLayoutManager.HORIZONTAL, false)
-            dateAdapter.submitList(dates)
+        }
+
+        viewModel.datePager.observe(viewLifecycleOwner) {
+            dateAdapter.submitData(lifecycle, it)
         }
 
         viewModel.selectedDate.observe(viewLifecycleOwner) { date ->
@@ -61,7 +60,7 @@ class DateServicesFragment : Fragment() {
             findNavController().navigate(R.id.action_home_to_services)
         }
 
-        binding.dateRecycler.scrollToPosition(dates.indexOfFirst { it == viewModel.selectedDate.value })
+//        binding.dateRecycler.scrollToPosition(dates.indexOfFirst { it == viewModel.selectedDate.value })
     }
 
     override fun onDestroyView() {

@@ -3,8 +3,8 @@ package com.spacey.myhome.dateservices
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.R
 import com.spacey.myhome.databinding.DateHolderBinding
@@ -14,10 +14,9 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 class DatePickerRecyclerAdapter(
-    private val dates: List<LocalDate>,
     defaultDate: LocalDate,
     private val onClick: (LocalDate) -> Unit
-) : ListAdapter<LocalDate, DatePickerRecyclerAdapter.DateHolder>(DiffCallback()) {
+) : PagingDataAdapter<LocalDate, DatePickerRecyclerAdapter.DateHolder>(DiffCallback()) {
 
     private var selectedDate: LocalDate = defaultDate
 
@@ -28,14 +27,14 @@ class DatePickerRecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: DateHolder, position: Int) {
-        val newDate = dates[holder.adapterPosition]
-        holder.bind(newDate, newDate == selectedDate)
+        val newDate = getItem(position)
+        holder.bind(newDate!!, newDate == selectedDate)
         holder.itemView.setOnClickListener {
             if (selectedDate != newDate) {
                 val lastSelected = selectedDate
                 selectedDate = newDate
-                notifyItemChanged(dates.indexOfFirst { it == lastSelected })
-                notifyItemChanged(dates.indexOfFirst { it == newDate })
+//                notifyItemChanged(dates.indexOfFirst { it == lastSelected })
+//                notifyItemChanged(dates.indexOfFirst { it == newDate })
             }
             onClick(newDate)
         }
