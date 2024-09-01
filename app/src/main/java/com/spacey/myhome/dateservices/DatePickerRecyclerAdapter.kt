@@ -14,11 +14,9 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 class DatePickerRecyclerAdapter(
-    defaultDate: LocalDate,
+    private val getSelectedDate: () -> LocalDate,
     private val onClick: (LocalDate) -> Unit
-) : PagingDataAdapter<LocalDate, DatePickerRecyclerAdapter.DateHolder>(DiffCallback()) {
-
-    private var selectedDate: LocalDate = defaultDate
+) : PagingDataAdapter<DateEntity, DatePickerRecyclerAdapter.DateHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DateHolder {
         val inflator = LayoutInflater.from(parent.context)
@@ -27,25 +25,24 @@ class DatePickerRecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: DateHolder, position: Int) {
-        val newDate = getItem(position)
-        holder.bind(newDate!!, newDate == selectedDate)
+        val newDate = getItem(position)!!
+        val selectedDate = getSelectedDate()
+
+        holder.bind(newDate.date, newDate.date == selectedDate)
         holder.itemView.setOnClickListener {
-            if (selectedDate != newDate) {
-                val lastSelected = selectedDate
-                selectedDate = newDate
-//                notifyItemChanged(dates.indexOfFirst { it == lastSelected })
-//                notifyItemChanged(dates.indexOfFirst { it == newDate })
+            if (selectedDate != newDate.date) {
+                onClick(newDate.date)
+//                notifyItemChanged(pos)
             }
-            onClick(newDate)
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<LocalDate>() {
-        override fun areItemsTheSame(oldItem: LocalDate, newItem: LocalDate): Boolean {
-            return oldItem == newItem
+    class DiffCallback : DiffUtil.ItemCallback<DateEntity>() {
+        override fun areItemsTheSame(oldItem: DateEntity, newItem: DateEntity): Boolean {
+            return oldItem.date == newItem.date
         }
 
-        override fun areContentsTheSame(oldItem: LocalDate, newItem: LocalDate): Boolean {
+        override fun areContentsTheSame(oldItem: DateEntity, newItem: DateEntity): Boolean {
             return oldItem == newItem
         }
     }

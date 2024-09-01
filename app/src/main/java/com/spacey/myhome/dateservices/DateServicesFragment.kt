@@ -6,12 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.spacey.myhome.HomeActivity
 import com.spacey.myhome.R
 import com.spacey.myhome.databinding.FragmentDateServicesBinding
 import com.spacey.myhome.util.CommonConstants
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -28,8 +30,7 @@ class DateServicesFragment : Fragment() {
     ): View {
         _binding = FragmentDateServicesBinding.inflate(inflater, container, false)
 
-        val defaultDate = viewModel.selectedDate.value ?: viewModel.defaultDate
-        val dateAdapter = DatePickerRecyclerAdapter(defaultDate) {
+        val dateAdapter = DatePickerRecyclerAdapter(getSelectedDate = { viewModel.getSelectedDate() }) {
             viewModel.selectDate(it)
         }
 
@@ -39,15 +40,17 @@ class DateServicesFragment : Fragment() {
         }
 
         viewModel.datePager.observe(viewLifecycleOwner) {
-            dateAdapter.submitData(lifecycle, it)
+            viewLifecycleOwner.lifecycleScope.launch {
+                dateAdapter.submitData(it)
+            }
         }
-
         viewModel.selectedDate.observe(viewLifecycleOwner) { date ->
             (activity as HomeActivity).setToolbarTitle(if (date == LocalDate.now()) {
                 "Today"
             } else {
                 date.format(DateTimeFormatter.ofPattern(CommonConstants.HOME_DATE_PATTERN))
             })
+            dateAdapter.notifyDataSetChanged()
         }
 
         return binding.root
