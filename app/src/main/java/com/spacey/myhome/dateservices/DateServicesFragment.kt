@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.spacey.myhome.HomeActivity
 import com.spacey.myhome.R
 import com.spacey.myhome.databinding.FragmentDateServicesBinding
+import com.spacey.myhome.dateservices.datelist.DatePickerRecyclerAdapter
 import com.spacey.myhome.util.CommonConstants
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -62,7 +63,6 @@ class DateServicesFragment : Fragment() {
         binding.buttonFirst.setOnClickListener {
             findNavController().navigate(R.id.action_home_to_services)
         }
-
 //        binding.dateRecycler.scrollToPosition(dates.indexOfFirst { it == viewModel.selectedDate.value })
     }
 

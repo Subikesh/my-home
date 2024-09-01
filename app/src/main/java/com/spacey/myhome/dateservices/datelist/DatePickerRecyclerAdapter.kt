@@ -1,4 +1,4 @@
-package com.spacey.myhome.dateservices
+package com.spacey.myhome.dateservices.datelist
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -16,7 +16,7 @@ import java.util.Locale
 class DatePickerRecyclerAdapter(
     private val getSelectedDate: () -> LocalDate,
     private val onClick: (LocalDate) -> Unit
-) : PagingDataAdapter<DateEntity, DatePickerRecyclerAdapter.DateHolder>(DiffCallback()) {
+) : PagingDataAdapter<LocalDate, DatePickerRecyclerAdapter.DateHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DateHolder {
         val inflator = LayoutInflater.from(parent.context)
@@ -28,21 +28,21 @@ class DatePickerRecyclerAdapter(
         val newDate = getItem(position)!!
         val selectedDate = getSelectedDate()
 
-        holder.bind(newDate.date, newDate.date == selectedDate)
+        holder.bind(newDate, newDate == selectedDate)
         holder.itemView.setOnClickListener {
-            if (selectedDate != newDate.date) {
-                onClick(newDate.date)
+            if (selectedDate != newDate) {
+                onClick(newDate)
 //                notifyItemChanged(pos)
             }
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<DateEntity>() {
-        override fun areItemsTheSame(oldItem: DateEntity, newItem: DateEntity): Boolean {
-            return oldItem.date == newItem.date
+    class DiffCallback : DiffUtil.ItemCallback<LocalDate>() {
+        override fun areItemsTheSame(oldItem: LocalDate, newItem: LocalDate): Boolean {
+            return oldItem == newItem
         }
 
-        override fun areContentsTheSame(oldItem: DateEntity, newItem: DateEntity): Boolean {
+        override fun areContentsTheSame(oldItem: LocalDate, newItem: LocalDate): Boolean {
             return oldItem == newItem
         }
     }
