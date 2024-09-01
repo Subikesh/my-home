@@ -2,15 +2,21 @@ package com.spacey.myhome.dateservices
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.spacey.myhome.HomeActivity
 import com.spacey.myhome.R
+import com.spacey.myhome.databinding.DateBottomDialogBinding
 import com.spacey.myhome.databinding.FragmentDateServicesBinding
 import com.spacey.myhome.dateservices.datelist.DatePickerRecyclerAdapter
 import com.spacey.myhome.util.CommonConstants
@@ -25,15 +31,51 @@ class DateServicesFragment : Fragment() {
 
     private val viewModel: DateServicesViewModel by viewModels()
 
+    private lateinit var dateAdapter: DatePickerRecyclerAdapter
+
+    private val menuProvider = object : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.date_service_menu, menu)
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            when (menuItem.itemId) {
+                R.id.today -> {
+                    val today = LocalDate.now()
+                    viewModel.selectDate(today)
+                    dateAdapter.snapshot().indexOfFirst { it == today }.takeIf { it != -1 }?.let {
+                        binding.dateRecycler.scrollToPosition(it)
+                    }
+                }
+                R.id.calendar -> {
+                    val bottomSheet = BottomSheetDialog(requireContext())
+                    val dialogBinding = DateBottomDialogBinding.inflate(layoutInflater)
+                    bottomSheet.setContentView(dialogBinding.root)
+                    bottomSheet.show()
+
+                    dialogBinding.dismissBottom.setOnClickListener {
+                        bottomSheet.dismiss()
+                    }
+                }
+                else -> return false
+            }
+            return true
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDateServicesBinding.inflate(inflater, container, false)
 
-        val dateAdapter = DatePickerRecyclerAdapter(getSelectedDate = { viewModel.getSelectedDate() }) {
+        dateAdapter = DatePickerRecyclerAdapter(getSelectedDate = { viewModel.getSelectedDate() }) {
             viewModel.selectDate(it)
         }
+
+        activity?.addMenuProvider(menuProvider)
+
+        setMenuVisibility(true)
 
         with(binding.dateRecycler) {
             adapter = dateAdapter
