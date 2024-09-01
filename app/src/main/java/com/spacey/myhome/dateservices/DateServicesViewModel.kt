@@ -24,7 +24,7 @@ class DateServicesViewModel : ViewModel() {
     private lateinit var dataSource: DatePagingSource
 
     val datePager = Pager(PagingConfig(100), initialKey = selectedDate.value, pagingSourceFactory = {
-        DatePagingSource { getSelectedDate() }.also { dataSource = it }
+        DatePagingSource().also { dataSource = it }
     }).liveData.cachedIn(viewModelScope)
 
     fun selectDate(date: LocalDate) {

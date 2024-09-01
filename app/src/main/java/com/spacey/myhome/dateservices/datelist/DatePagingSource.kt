@@ -5,7 +5,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import java.time.LocalDate
 
-class DatePagingSource(val getSelectedDate: () -> LocalDate) : PagingSource<LocalDate, LocalDate>() {
+class DatePagingSource : PagingSource<LocalDate, LocalDate>() {
     override fun getRefreshKey(state: PagingState<LocalDate, LocalDate>): LocalDate? {
         return state.anchorPosition?.let { state.closestItemToPosition(it) }
     }
