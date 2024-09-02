@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="16dp">
+    android:orientation="vertical">
 
-    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <ImageButton
+            android:id="@+id/date_select_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/design_default_color_surface"
+            android:layout_gravity="end"
+            android:layout_marginVertical="8dp"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="Date Submit"
+            android:src="@drawable/baseline_done_24" />
+    </FrameLayout>
+
+    <CalendarView
+        android:id="@+id/date_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/dismiss_bottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Dismiss" />
 
 </LinearLayout>

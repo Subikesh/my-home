@@ -22,6 +22,7 @@ import com.spacey.myhome.dateservices.datelist.DatePickerRecyclerAdapter
 import com.spacey.myhome.util.CommonConstants
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 class DateServicesFragment : Fragment() {
@@ -42,19 +43,23 @@ class DateServicesFragment : Fragment() {
             when (menuItem.itemId) {
                 R.id.today -> {
                     val today = LocalDate.now()
-                    viewModel.selectDate(today)
-                    dateAdapter.snapshot().indexOfFirst { it == today }.takeIf { it != -1 }?.let {
-                        binding.dateRecycler.scrollToPosition(it)
-                    }
+                    selectDate(today)
                 }
                 R.id.calendar -> {
                     val bottomSheet = BottomSheetDialog(requireContext())
-                    val dialogBinding = DateBottomDialogBinding.inflate(layoutInflater)
-                    bottomSheet.setContentView(dialogBinding.root)
-                    bottomSheet.show()
+                    var selectedDate: LocalDate = viewModel.getSelectedDate()
+                    with(DateBottomDialogBinding.inflate(layoutInflater)) {
+                        bottomSheet.setContentView(root)
+                        bottomSheet.show()
 
-                    dialogBinding.dismissBottom.setOnClickListener {
-                        bottomSheet.dismiss()
+                        datePicker.date = selectedDate.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
+                        datePicker.setOnDateChangeListener { _, year, month, dayOfMonth ->
+                            selectedDate = LocalDate.of(year, month+1, dayOfMonth)
+                        }
+                        dateSelectButton.setOnClickListener {
+                            selectDate(selectedDate)
+                            bottomSheet.dismiss()
+                        }
                     }
                 }
                 else -> return false
@@ -106,6 +111,13 @@ class DateServicesFragment : Fragment() {
             findNavController().navigate(R.id.action_home_to_services)
         }
 //        binding.dateRecycler.scrollToPosition(dates.indexOfFirst { it == viewModel.selectedDate.value })
+    }
+
+    private fun selectDate(date: LocalDate) {
+        viewModel.selectDate(date)
+        dateAdapter.snapshot().indexOfFirst { it == date }.takeIf { it != -1 }?.let {
+            binding.dateRecycler.scrollToPosition(it)
+        }
     }
 
     override fun onDestroyView() {
