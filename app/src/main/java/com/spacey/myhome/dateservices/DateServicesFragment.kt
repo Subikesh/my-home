@@ -106,10 +106,6 @@ class DateServicesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.buttonFirst.setOnClickListener {
-            findNavController().navigate(R.id.action_home_to_services)
-        }
 //        binding.dateRecycler.scrollToPosition(dates.indexOfFirst { it == viewModel.selectedDate.value })
     }
 
