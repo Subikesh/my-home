@@ -1,5 +1,6 @@
-package com.spacey.myhome.dateservices.todayserviceslist
+package com.spacey.myhome.dateservices.dateserviceslist
 
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil.ItemCallback
 import androidx.recyclerview.widget.ListAdapter
@@ -7,14 +8,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.spacey.myhome.databinding.TodayServiceItemBinding
 import com.spacey.myhome.domain.Subscription
 
-class TodayServicesAdapter : ListAdapter<Subscription, TodayServicesAdapter.ViewHolder>(ItemDiff()) {
+class DateServicesAdapter : ListAdapter<Subscription, DateServicesAdapter.ViewHolder>(ItemDiff()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        TODO("Not yet implemented")
+        val binding = TodayServiceItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        TODO("Not yet implemented")
+        holder.bind(getItem(position))
     }
 
 

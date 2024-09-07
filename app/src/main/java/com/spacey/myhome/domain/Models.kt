@@ -11,7 +11,7 @@ data class Service(val name: String)
 
 data class ServiceJob(val deliverer: Deliverer, val service: Service)
 
-data class ServiceRegistry(val service: ServiceJob)
+data class ServiceRegistry(val service: ServiceJob, val subscriber: User)
 
 data class Subscription(val serviceRegistry: ServiceRegistry, val startDate: LocalDate, val days: List<DayOfWeek>, val default: Double)
 

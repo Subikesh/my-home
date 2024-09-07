@@ -11,7 +11,6 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.spacey.myhome.HomeActivity
@@ -19,6 +18,7 @@ import com.spacey.myhome.R
 import com.spacey.myhome.databinding.DateBottomDialogBinding
 import com.spacey.myhome.databinding.FragmentDateServicesBinding
 import com.spacey.myhome.dateservices.datelist.DatePickerRecyclerAdapter
+import com.spacey.myhome.dateservices.dateserviceslist.DateServicesAdapter
 import com.spacey.myhome.util.CommonConstants
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -33,6 +33,7 @@ class DateServicesFragment : Fragment() {
     private val viewModel: DateServicesViewModel by viewModels()
 
     private lateinit var dateAdapter: DatePickerRecyclerAdapter
+    private lateinit var dateServicesAdapter: DateServicesAdapter
 
     private val menuProvider = object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -72,11 +73,13 @@ class DateServicesFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        viewModel.selectDate(viewModel.defaultDate)
         _binding = FragmentDateServicesBinding.inflate(inflater, container, false)
 
         dateAdapter = DatePickerRecyclerAdapter(getSelectedDate = { viewModel.getSelectedDate() }) {
             viewModel.selectDate(it)
         }
+        dateServicesAdapter = DateServicesAdapter()
 
         activity?.addMenuProvider(menuProvider)
 
@@ -85,6 +88,11 @@ class DateServicesFragment : Fragment() {
         with(binding.dateRecycler) {
             adapter = dateAdapter
             layoutManager = LinearLayoutManager(this@DateServicesFragment.context, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        with(binding.dateServicesAdapter) {
+            adapter = dateServicesAdapter
+            layoutManager = LinearLayoutManager(this@DateServicesFragment.context, LinearLayoutManager.VERTICAL, false)
         }
 
         viewModel.datePager.observe(viewLifecycleOwner) {
@@ -101,12 +109,19 @@ class DateServicesFragment : Fragment() {
             dateAdapter.notifyDataSetChanged()
         }
 
+        viewModel.subscriptionList.observe(viewLifecycleOwner) {
+            if (it != null) {
+                dateServicesAdapter.submitList(it)
+            } else {
+                binding.dateServicesAdapter.invalidate()
+            }
+        }
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        binding.dateRecycler.scrollToPosition(dates.indexOfFirst { it == viewModel.selectedDate.value })
     }
 
     private fun selectDate(date: LocalDate) {
