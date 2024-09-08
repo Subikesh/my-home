@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.spacey.myhome.databinding.TodayServiceItemBinding
 import com.spacey.myhome.domain.Subscription
 
-class DateServicesAdapter : ListAdapter<Subscription, DateServicesAdapter.ViewHolder>(ItemDiff()) {
+class DateServicesAdapter(onItemClick: (Subscription) -> Unit) : ListAdapter<Subscription, DateServicesAdapter.ViewHolder>(ItemDiff()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = TodayServiceItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -22,7 +22,7 @@ class DateServicesAdapter : ListAdapter<Subscription, DateServicesAdapter.ViewHo
 
     class ViewHolder(private val binding: TodayServiceItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(subscription: Subscription) {
-            binding.serviceName.text = subscription.serviceRegistry.service.service.name
+            binding.serviceName.text = subscription.serviceRegistry.serviceJob.service.name
             binding.serviceAmount.text = subscription.default.toString()
         }
     }
@@ -30,7 +30,7 @@ class DateServicesAdapter : ListAdapter<Subscription, DateServicesAdapter.ViewHo
     private class ItemDiff : ItemCallback<Subscription>() {
 
         override fun areItemsTheSame(oldItem: Subscription, newItem: Subscription): Boolean {
-            return oldItem.serviceRegistry.service == newItem.serviceRegistry.service
+            return oldItem.serviceRegistry.serviceJob == newItem.serviceRegistry.serviceJob
         }
 
         override fun areContentsTheSame(oldItem: Subscription, newItem: Subscription): Boolean {

@@ -28,6 +28,9 @@ class DateServicesViewModel : ViewModel() {
     private val _subscriptionList: MutableLiveData<List<Subscription>> = MutableLiveData()
     val subscriptionList: LiveData<List<Subscription>> = _subscriptionList
 
+    private val _selectedSubscription: MutableLiveData<Subscription> = MutableLiveData()
+    val selectedSubscription: LiveData<Subscription> = _selectedSubscription
+
     fun getSelectedDate(): LocalDate = selectedDate.value ?: defaultDate
 
     private lateinit var dataSource: DatePagingSource
@@ -44,8 +47,12 @@ class DateServicesViewModel : ViewModel() {
         _subscriptionList.value = getSubscriptionList(date)
     }
 
+    fun selectSubscription(subscription: Subscription) {
+        _selectedSubscription.value = subscription
+    }
+
     private fun getSubscriptionList(date: LocalDate): List<Subscription> =
-        (1 until date.dayOfMonth).map {
+        (1 .. date.dayOfMonth).map {
             Subscription(
                 ServiceRegistry(ServiceJob(deliverer, Service("${date.dayOfWeek} $it")), user),
                 LocalDate.ofYearDay(2024, 1),

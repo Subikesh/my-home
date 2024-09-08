@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +21,7 @@ import com.spacey.myhome.databinding.DateBottomDialogBinding
 import com.spacey.myhome.databinding.FragmentDateServicesBinding
 import com.spacey.myhome.dateservices.datelist.DatePickerRecyclerAdapter
 import com.spacey.myhome.dateservices.dateserviceslist.DateServicesAdapter
+import com.spacey.myhome.dateservices.subscription.SubscriptionDetailsFragment
 import com.spacey.myhome.util.CommonConstants
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -69,17 +72,16 @@ class DateServicesFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewModel.selectDate(viewModel.defaultDate)
         _binding = FragmentDateServicesBinding.inflate(inflater, container, false)
 
         dateAdapter = DatePickerRecyclerAdapter(getSelectedDate = { viewModel.getSelectedDate() }) {
             viewModel.selectDate(it)
         }
-        dateServicesAdapter = DateServicesAdapter()
+        dateServicesAdapter = DateServicesAdapter { subscription ->
+            viewModel.selectSubscription(subscription)
+        }
 
         activity?.addMenuProvider(menuProvider)
 
@@ -117,11 +119,15 @@ class DateServicesFragment : Fragment() {
             }
         }
 
-        return binding.root
-    }
+        viewModel.selectedSubscription.observe(viewLifecycleOwner) {
+            parentFragmentManager.commit {
+                replace<SubscriptionDetailsFragment>(R.id.content_home)
+                this.setReorderingAllowed(true)
+                addToBackStack(null)
+            }
+        }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        return binding.root
     }
 
     private fun selectDate(date: LocalDate) {
